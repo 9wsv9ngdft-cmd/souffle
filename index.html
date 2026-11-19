@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Souffle — j'arrête de fumer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f1ea; --card:#fffdf9; --ink:#1f2a24; --muted:#6b7570; --line:#e6dfd3;
+  --green:#2f7a5b; --green-soft:#dcefe5; --coral:#e2674a; --coral-soft:#fbe3dc; --sky:#5b8fb9; --gold:#c9962b; --gold-soft:#f6ead0;
+  --r:18px; --on-green:#fff; --on-coral:#fff; --hero:#2f7a5b; --hero-over:#e2674a;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#141a17;--card:#1c2420;--ink:#eef2ef;--muted:#9aa6a0;--line:#2b3631;--green:#5fbf93;--green-soft:#21362c;--coral:#f08467;--coral-soft:#3a2520;--sky:#86b4d8;--gold:#e0b555;--gold-soft:#3a3020;--on-green:#0d1a13;--on-coral:#2a0e07;--hero:#1f5c43;--hero-over:#a8412a}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.45}
+body{padding-bottom:92px}
+main{max-width:520px;margin:0 auto;padding:20px 16px}
+h1,h2,.serif{font-family:Fraunces,Georgia,serif;font-weight:700;letter-spacing:-.01em}
+h1{font-size:1.6rem}
+h2{font-size:1.2rem;margin:24px 0 10px}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.hero{background:var(--hero);color:#fff;border:none;padding:22px 18px}
+.hero.over{background:var(--hero-over)}
+.hero .big{font-family:Fraunces,serif;font-size:3.2rem;line-height:1;font-weight:700}
+.hero .sub{font-variant-numeric:tabular-nums;font-size:1.05rem;opacity:.92;margin-top:6px}
+.hero .bar{background:rgba(255,255,255,.25)}
+.hero .bar>i{background:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid.mb{margin-bottom:12px}
+.stat .v{font-family:Fraunces,serif;font-size:1.55rem;font-weight:700}
+.stat .l{font-size:.82rem;color:var(--muted)}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}
+.bar>i{display:block;height:100%;background:var(--green);border-radius:99px;transition:width .5s}
+.row{display:flex;align-items:center;gap:10px;justify-content:space-between}
+button{font:inherit;border:none;border-radius:14px;padding:12px 16px;font-weight:600;cursor:pointer;background:var(--green-soft);color:var(--ink)}
+.btn-primary{background:var(--green);color:var(--on-green)}
+.btn-sos{background:var(--coral);color:var(--on-coral)}
+.btn-ghost{background:transparent;border:1px solid var(--line)}
+.btn-block{width:100%}
+.btn-big{padding:16px;font-size:1.05rem}
+.btn-sm{padding:8px 12px;font-size:.88rem}
+input,select{font:inherit;width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 4px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 2px calc(8px + env(safe-area-inset-bottom));z-index:5}
+nav button{background:none;padding:6px 6px;font-size:.72rem;font-weight:500;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button svg{width:24px;height:24px}
+nav button.on{color:var(--green)}
+nav button.sos{color:var(--coral)}
+.view{display:none}.view.on{display:block}
+.ms{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.ms:last-child{border-bottom:none}
+.dot{flex:0 0 28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem}
+.ms.done .dot{background:var(--green);border-color:var(--green);color:var(--on-green)}
+.ms .t{font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 12px;border-radius:99px;border:1px solid var(--line);background:var(--bg);font-weight:500;font-size:.9rem}
+.chip.on{background:var(--green);border-color:var(--green);color:var(--on-green)}
+.seg{display:grid;gap:8px}
+.seg.two{grid-template-columns:1fr 1fr}
+.seg button{text-align:left;background:var(--bg);border:1px solid var(--line);font-weight:500}
+.seg.two button{text-align:center}
+.seg button.on{border-color:var(--green);background:var(--green-soft)}
+.seg b{display:block}
+.breath{position:relative;height:230px;display:grid;place-items:center}
+.circle{width:110px;height:110px;border-radius:50%;background:var(--green-soft);border:3px solid var(--green);transition:transform 4s ease-in-out}
+.breath-txt{position:absolute;font-family:Fraunces,serif;font-size:1.3rem;font-weight:700}
+.timer{font-family:Fraunces,serif;font-size:2.2rem;text-align:center;font-variant-numeric:tabular-nums}
+.exname{font-family:Fraunces,serif;font-size:1.8rem;font-weight:700;text-align:center;margin-top:10px;min-height:2.4em}
+.exnext{text-align:center;color:var(--muted);font-size:.9rem;min-height:1.4em}
+.reason{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.reason:last-child{border-bottom:none}
+.x{background:none;padding:4px 8px;color:var(--muted)}
+.log{padding:10px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:center}
+.log:last-child{border-bottom:none}
+.pill{font-size:.75rem;padding:3px 9px;border-radius:99px;font-weight:600;white-space:nowrap}
+.pill.ok{background:var(--green-soft);color:var(--green)}
+.pill.ko{background:var(--coral-soft);color:var(--coral)}
+.pill.sk{background:var(--gold-soft);color:var(--gold)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.modal.on{display:flex}
+.sheet{background:var(--card);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto}
+.tip{padding:10px 0;border-bottom:1px dashed var(--line)}
+.tip:last-child{border-bottom:none}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:.9rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:20;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+.enc{background:var(--gold-soft);border-color:transparent}
+.enc .q{font-family:Fraunces,serif;font-size:1.1rem;font-weight:600;margin-top:2px}
+.mission{background:var(--green-soft);border-color:transparent}
+.mission .q{font-weight:600;margin:4px 0 10px}
+.check{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.check:last-of-type{border-bottom:none}
+.box{flex:0 0 22px;height:22px;border:2px solid var(--line);border-radius:7px;display:grid;place-items:center;font-size:.8rem;margin-top:1px}
+.check.on .box{background:var(--green);border-color:var(--green);color:var(--on-green)}
+.check.on .tx{text-decoration:line-through;color:var(--muted)}
+.dj{font-family:Fraunces,serif;font-size:2.4rem;font-weight:700;line-height:1}
+.cat{margin:20px 0 8px;font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.badge{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 6px;text-align:center}
+.badge .e{font-size:2rem;line-height:1.2}
+.badge .n{font-weight:600;font-size:.8rem;margin-top:4px}
+.badge .d{font-size:.68rem;color:var(--muted);margin-top:2px}
+.badge.locked .e{filter:grayscale(1);opacity:.3}
+.badge.locked .n{color:var(--muted)}
+.badge.got{border-color:var(--gold);background:var(--gold-soft)}
+.info{padding:12px 0;border-bottom:1px solid var(--line)}
+.info:last-child{border-bottom:none}
+.info b{display:block;margin-bottom:2px}
+.adv{padding:10px 0;border-bottom:1px solid var(--line)}
+.adv:last-child{border-bottom:none}
+.warn{background:var(--coral-soft);border-radius:12px;padding:10px 12px;font-size:.88rem;margin-top:10px}
+svg text{font-family:Inter,sans-serif}
+.legend{display:flex;gap:14px;font-size:.75rem;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+details summary{cursor:pointer;font-weight:600;padding:10px 0}
+</style>
+</head>
+<body>
+<main>
+  <!-- ONBOARDING -->
+  <section id="v-setup" class="view">
+    <h1>Bienvenue 🌱</h1>
+    <p class="muted" style="margin:8px 0 16px">Quelques infos pour suivre tes progrès. Tout reste modifiable ensuite.</p>
+    <div class="card">
+      <form id="setupForm">
+        <label>Ton approche</label>
+        <div class="seg" id="s-mode">
+          <button type="button" data-v="reduce" class="on"><b>Réduire d'abord</b><span class="small muted">Un objectif quotidien qui baisse petit à petit</span></button>
+          <button type="button" data-v="quit"><b>Arrêter maintenant</b><span class="small muted">Compteur depuis ta dernière cigarette</span></button>
+        </div>
+        <label for="s-day">Cigarettes par jour actuellement</label>
+        <input id="s-day" type="number" min="1" max="100" value="15" required>
+        <div id="s-reduceBox">
+          <label>Rythme de réduction</label>
+          <div class="seg" id="s-pace">
+            <button type="button" data-v="5"><b>Doux</b><span class="small muted">−1 cigarette tous les 5 jours</span></button>
+            <button type="button" data-v="3" class="on"><b>Régulier</b><span class="small muted">−1 cigarette tous les 3 jours</span></button>
+            <button type="button" data-v="2"><b>Rapide</b><span class="small muted">−1 cigarette tous les 2 jours</span></button>
+          </div>
+          <p class="small muted" id="s-proj" style="margin-top:8px"></p>
+        </div>
+        <div id="s-quitBox" style="display:none">
+          <label for="s-date">Date et heure de ta dernière cigarette</label>
+          <input id="s-date" type="datetime-local">
+        </div>
+        <label for="s-price">Prix d'un paquet (€)</label>
+        <input id="s-price" type="number" min="0" step="0.1" value="13" required>
+        <label for="s-pack">Cigarettes par paquet</label>
+        <input id="s-pack" type="number" min="1" value="20" required>
+        <label>Substituts nicotiniques</label>
+        <div class="chips" id="s-subs">
+          <button type="button" class="chip on" data-v="patch">Patchs</button>
+          <button type="button" class="chip on" data-v="gum">Gommes à mâcher</button>
+        </div>
+        <label for="s-why">Ta première raison d'arrêter</label>
+        <input id="s-why" type="text" placeholder="Ex. : courir sans être essoufflé">
+        <button class="btn-primary btn-block btn-big" style="margin-top:18px" type="submit">C'est parti</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- HOME -->
+  <section id="v-home" class="view">
+    <div class="row" style="margin-bottom:14px">
+      <h1>Souffle</h1>
+      <button class="btn-ghost" id="openSettings" aria-label="Réglages">⚙︎</button>
+    </div>
+    <div class="card hero" id="hero"></div>
+    <div class="grid mb" id="actReduce">
+      <button class="btn-ghost btn-big" id="smokeBtn">🚬 J'en fume une</button>
+      <button class="btn-sos btn-big" data-go="sos">J'ai envie — SOS</button>
+    </div>
+    <div class="grid mb" id="actQuit">
+      <button class="btn-sos btn-big" data-go="sos">J'ai une envie — SOS</button>
+      <button class="btn-ghost btn-big" id="slipBtn">Noter un écart</button>
+    </div>
+    <div class="card" id="subsCard"></div>
+    <div class="card" id="spacing"></div>
+    <div class="card" id="dday"></div>
+    <div class="card mission" id="mission"></div>
+    <div class="card" id="evening"></div>
+    <div class="card enc" id="enc"></div>
+    <div class="grid">
+      <div class="card stat"><div class="v" id="h-money">0 €</div><div class="l" id="h-money-l">économisés</div></div>
+      <div class="card stat"><div class="v" id="h-cigs">0</div><div class="l">cigarettes évitées</div></div>
+      <div class="card stat"><div class="v" id="h-life">0 h</div><div class="l">de vie regagnée*</div></div>
+      <div class="card stat"><div class="v" id="h-won">0</div><div class="l">envies surmontées</div></div>
+    </div>
+    <div class="card" id="h-next"></div>
+
+    <h2>Mes raisons</h2>
+    <div class="card">
+      <div id="reasons"></div>
+      <form id="reasonForm" class="row" style="margin-top:10px">
+        <input id="reasonIn" placeholder="Ajouter une raison…">
+        <button type="submit">+</button>
+      </form>
+    </div>
+
+    <h2>Avec cet argent…</h2>
+    <div class="card" id="h-goal"></div>
+    <button class="btn-ghost btn-block" id="goalBtn">Fixer un objectif d'achat</button>
+    <p class="small muted" style="margin-top:12px">* Estimation : environ 20 minutes d'espérance de vie par cigarette (étude UCL, 2024). Les chiffres sont indicatifs.</p>
+  </section>
+
+  <!-- SOS -->
+  <section id="v-sos" class="view">
+    <h1>Respire. Ça va passer.</h1>
+    <p class="muted" style="margin-top:6px">Une envie dure en général 3 à 5 minutes. Choisis comment la traverser.</p>
+    <div class="seg two" id="sosSeg" style="margin-top:14px">
+      <button type="button" data-v="breathe" class="on">🌬️ Respirer 3 min</button>
+      <button type="button" data-v="move">🏃 Bouger 7 min</button>
+    </div>
+
+    <div class="card" id="sosBreath" style="margin-top:12px">
+      <div class="breath"><div class="circle" id="circle"></div><div class="breath-txt" id="breathTxt">Prêt ?</div></div>
+      <div class="timer" id="sosTimer">3:00</div>
+      <button class="btn-primary btn-block" id="sosStart" style="margin-top:12px">Démarrer 3 minutes</button>
+    </div>
+
+    <div class="card" id="sosMove" style="display:none;margin-top:12px">
+      <div id="wkSetup">
+        <div class="seg two" id="wkSeg">
+          <button type="button" data-v="full" class="on"><b>7 minutes</b><span class="small muted">12 exercices</span></button>
+          <button type="button" data-v="short"><b>3 minutes</b><span class="small muted">6 exercices (bureau)</span></button>
+        </div>
+        <p class="small muted" style="margin-top:10px">Il te faut juste une chaise et un mur. Arrête-toi si tu ressens une douleur ou un essoufflement anormal.</p>
+        <button class="btn-primary btn-block" id="wkStart" style="margin-top:12px">Lancer la séance</button>
+      </div>
+      <div id="wkRun" style="display:none">
+        <div class="small muted" style="text-align:center" id="wkPhase"></div>
+        <div class="exname" id="wkName"></div>
+        <div class="timer" id="wkTime">0</div>
+        <div class="exnext" id="wkNext"></div>
+        <div class="bar"><i id="wkBar" style="width:0"></i></div>
+        <button class="btn-ghost btn-block" id="wkStop" style="margin-top:14px">Arrêter</button>
+      </div>
+    </div>
+
+    <div class="card enc" id="sosReason" style="display:none"></div>
+    <div class="card"><b>⌚ Ou lance <i>Respirer</i> sur ta montre</b><div class="small muted" style="margin-top:2px">Apple Watch : app Pleine conscience → Respirer.</div></div>
+    <h2>Pendant ce temps</h2>
+    <div class="card" id="tips"></div>
+    <div class="grid" style="margin-top:4px">
+      <button class="btn-primary btn-big" id="won">J'ai tenu 💪</button>
+      <button class="btn-ghost btn-big" id="slip">J'ai fumé</button>
+    </div>
+    <button class="btn-ghost btn-block" style="margin-top:12px" data-act="sym">Je ne me sens pas bien</button>
+    <p class="small muted" style="margin-top:14px">Besoin de parler à quelqu'un ? Tabac Info Service : <b>39 89</b> (appel gratuit), ou tabac-info-service.fr</p>
+  </section>
+
+  <!-- STATS -->
+  <section id="v-stats" class="view">
+    <h1>Tes stats</h1>
+    <div class="grid" style="margin-top:14px">
+      <div class="card stat"><div class="v" id="st-avg">–</div><div class="l">moyenne / jour (7 j)</div></div>
+      <div class="card stat"><div class="v" id="st-red">–</div><div class="l">vs avant</div></div>
+      <div class="card stat"><div class="v" id="st-streak">0</div><div class="l">jours de suite dans l'objectif</div></div>
+      <div class="card stat"><div class="v" id="st-best">–</div><div class="l">meilleure journée</div></div>
+    </div>
+    <div class="card" id="st-sub" style="display:none"></div>
+    <h2>14 derniers jours</h2>
+    <div class="card"><div id="chartDays"></div>
+      <div class="legend" id="legendDays"></div>
+    </div>
+    <div id="symBox" style="display:none">
+      <h2>Symptômes de manque</h2>
+      <div class="card"><div id="chartSym"></div><p class="small muted" id="symTxt" style="margin-top:6px"></p></div>
+    </div>
+    <h2>Tes heures à risque</h2>
+    <div class="card"><div id="chartHours"></div><p class="small muted" id="hoursTxt" style="margin-top:6px"></p></div>
+    <h2>Tes déclencheurs</h2>
+    <div class="card" id="triggers"></div>
+    <h2>Historique</h2>
+    <div class="card" id="logList"></div>
+  </section>
+
+  <!-- BADGES -->
+  <section id="v-badges" class="view">
+    <h1>Badges</h1>
+    <p class="muted" id="badgeCount" style="margin:6px 0 4px"></p>
+    <div id="badgeGrid"></div>
+  </section>
+
+  <!-- INFOS -->
+  <section id="v-infos" class="view">
+    <h1>Ton corps se répare</h1>
+    <p class="muted" id="msIntro" style="margin-top:6px"></p>
+    <div class="card" style="margin-top:14px" id="milestones"></div>
+    <p class="small muted">Repères généraux issus des messages de santé publique (OMS, Tabac Info Service). Chaque personne est différente.</p>
+    <h2>Bon à savoir</h2>
+    <div class="card" id="infos"></div>
+  </section>
+</main>
+
+<nav>
+  <button data-go="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Accueil</button>
+  <button data-go="sos" class="sos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>SOS</button>
+  <button data-go="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Stats</button>
+  <button data-go="badges"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/></svg>Badges</button>
+  <button data-go="infos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg>Infos</button>
+</nav>
+
+<!-- Smoke sheet -->
+<div class="modal" id="smokeModal"><div class="sheet">
+  <h2 style="margin-top:0" id="smokeTitle">Cigarette notée</h2>
+  <p class="muted small" id="smokeSub"></p>
+  <div class="chips" id="smokeTrig" style="margin-top:12px"></div>
+  <div class="grid" style="margin-top:18px">
+    <button class="btn-ghost" id="smokeUndo">Annuler (erreur)</button>
+    <button class="btn-primary" id="smokeSkip">Passer</button>
+  </div>
+</div></div>
+
+<!-- Craving sheet -->
+<div class="modal" id="cravModal"><div class="sheet">
+  <h2 style="margin-top:0">Bravo, tu as tenu ! 💪</h2>
+  <p class="muted small">Chaque envie surmontée rend la suivante plus faible.</p>
+  <label>Intensité de l'envie</label>
+  <div class="chips" id="intensity"></div>
+  <label>Ce qui l'a déclenchée</label>
+  <div class="chips" id="cravTrig"></div>
+  <div class="grid" style="margin-top:18px">
+    <button class="btn-ghost" id="cravCancel">Annuler</button>
+    <button class="btn-primary" id="cravSave">Enregistrer</button>
+  </div>
+</div></div>
+
+<!-- Symptoms sheet -->
+<div class="modal" id="symModal"><div class="sheet" id="symBody"></div></div>
+
+<!-- Badge sheet -->
+<div class="modal" id="badgeModal"><div class="sheet" style="text-align:center">
+  <div class="small muted">Nouveau badge débloqué</div>
+  <div style="font-size:4rem;margin:8px 0" id="bmE"></div>
+  <h2 style="margin:0" id="bmN"></h2>
+  <p class="muted" id="bmD" style="margin:6px 0 4px"></p>
+  <p class="small muted" id="bmMore"></p>
+  <button class="btn-primary btn-block" style="margin-top:16px" id="bmOk">Trop bien</button>
+</div></div>
+
+<!-- Settings sheet -->
+<div class="modal" id="setModal"><div class="sheet">
+  <h2 style="margin-top:0">Réglages</h2>
+  <form id="setForm">
+    <label for="e-day">Cigarettes par jour avant de commencer</label>
+    <input id="e-day" type="number" min="1" required>
+    <div id="e-reduceBox">
+      <label>Rythme de réduction</label>
+      <div class="seg" id="e-pace">
+        <button type="button" data-v="5"><b>Doux</b><span class="small muted">−1 tous les 5 jours</span></button>
+        <button type="button" data-v="3"><b>Régulier</b><span class="small muted">−1 tous les 3 jours</span></button>
+        <button type="button" data-v="2"><b>Rapide</b><span class="small muted">−1 tous les 2 jours</span></button>
+      </div>
+      <label for="e-dday">Jour J : date de l'arrêt total (facultatif)</label>
+      <input id="e-dday" type="date">
+      <p class="small muted" style="margin-top:4px">Laisse vide pour arrêter quand ton objectif atteint zéro.</p>
+    </div>
+    <div id="e-quitBox">
+      <label for="e-date">Date de l'arrêt total</label>
+      <input id="e-date" type="datetime-local">
+    </div>
+    <label for="e-price">Prix du paquet (€)</label>
+    <input id="e-price" type="number" min="0" step="0.1" required>
+    <label for="e-pack">Cigarettes par paquet</label>
+    <input id="e-pack" type="number" min="1" required>
+
+    <label>Substituts nicotiniques</label>
+    <div class="chips" id="e-subs">
+      <button type="button" class="chip" data-v="patch">Patchs</button>
+      <button type="button" class="chip" data-v="gum">Gommes à mâcher</button>
+    </div>
+    <div id="e-patchBox">
+      <label for="e-patchMg">Patch : mg indiqués sur la boîte</label>
+      <input id="e-patchMg" type="number" min="0" step="0.5">
+      <div class="grid">
+        <div><label for="e-patchPrice">Prix de la boîte (€)</label><input id="e-patchPrice" type="number" min="0" step="0.1"></div>
+        <div><label for="e-patchPer">Patchs par boîte</label><input id="e-patchPer" type="number" min="1"></div>
+      </div>
+    </div>
+    <div id="e-gumBox">
+      <label for="e-gumMg">Gomme : mg indiqués sur la boîte</label>
+      <input id="e-gumMg" type="number" min="0" step="0.5">
+      <div class="grid">
+        <div><label for="e-gumPrice">Prix de la boîte (€)</label><input id="e-gumPrice" type="number" min="0" step="0.1"></div>
+        <div><label for="e-gumPer">Gommes par boîte</label><input id="e-gumPer" type="number" min="1"></div>
+      </div>
+    </div>
+    <p class="small muted" style="margin-top:8px">Souffle ne conseille aucun dosage. Pour le choisir ou l'ajuster, demande à ton médecin, ton pharmacien ou au 39 89.</p>
+
+    <label for="e-goal">Objectif d'achat</label>
+    <input id="e-goal" type="text" placeholder="Ex. : un week-end à la mer">
+    <label for="e-goalp">Prix de l'objectif (€)</label>
+    <input id="e-goalp" type="number" min="0" step="1">
+    <div class="grid" style="margin-top:18px">
+      <button type="button" class="btn-ghost" id="setCancel">Fermer</button>
+      <button type="submit" class="btn-primary">Enregistrer</button>
+    </div>
+  </form>
+  <button class="btn-ghost btn-block" id="setToQuit" style="margin-top:22px">Passer à l'arrêt total maintenant</button>
+  <button class="btn-ghost btn-block" id="setToReduce" style="margin-top:22px">Revenir au mode réduction</button>
+  <button class="btn-ghost btn-block" id="resetBtn" style="margin-top:10px;color:var(--coral)">Tout effacer et recommencer</button>
+  <div id="resetConfirm" style="display:none;margin-top:10px">
+    <p class="small">Sûr ? Tout ton historique sera supprimé.</p>
+    <button class="btn-block" style="background:var(--coral);color:var(--on-coral);margin-top:8px" id="resetYes">Oui, tout effacer</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============ Souffle — partie 1 : données, calculs ============ */
+const KEY = "souffle-v1", DAY = 864e5, HR = 36e5, H4 = 4 * HR;
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const pad = n => String(n).padStart(2, "0");
+const euro = n => n.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: n < 100 ? 2 : 0 });
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const toLocalInput = t => { const d = new Date(t); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const toDateInput = t => { const d = new Date(t); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+const fmtDate = (t, o) => new Date(t).toLocaleDateString("fr-FR", o || { day: "numeric", month: "long" });
+function toast(t) { const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("on"), 2600); }
+function ago(ms) { const m = Math.floor(ms / 60000); if (m < 1) return "à l'instant"; if (m < 60) return m + " min"; const h = Math.floor(m / 60); if (h < 48) return h + " h " + pad(m % 60); return Math.floor(h / 24) + " jours"; }
+function dur(sec) { if (sec < 3600) return Math.ceil(sec / 60) + " min"; if (sec < 86400) return Math.ceil(sec / 3600) + " h"; return Math.ceil(sec / 86400) + " j"; }
+
+/* Une « journée » va de 4 h à 4 h : une cigarette à 1 h du matin compte pour la veille. */
+function dayStart(t) { const d = new Date(t - H4); d.setHours(0, 0, 0, 0); return d.getTime() + H4; }
+function dayKey(t) { const d = new Date(t - H4); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+
+/* ---------- contenu ---------- */
+const MS = [
+  [1200, "20 minutes", "Ta tension et ton rythme cardiaque redescendent vers la normale."],
+  [28800, "8 heures", "Le monoxyde de carbone dans ton sang a baissé de moitié, tes cellules sont mieux oxygénées."],
+  [86400, "24 heures", "Le monoxyde de carbone est éliminé. Tes poumons commencent à se nettoyer."],
+  [172800, "48 heures", "Le goût et l'odorat s'améliorent. Il n'y a plus de nicotine dans ton corps."],
+  [259200, "72 heures", "Respirer devient plus facile, tes bronches se relâchent. Plus d'énergie."],
+  [1209600, "2 semaines", "Ta circulation s'améliore : marcher et monter les escaliers devient plus facile."],
+  [7776000, "3 mois", "Ta capacité pulmonaire progresse nettement, tu tousses moins."],
+  [23328000, "9 mois", "Les cils de tes bronches ont repoussé : moins d'infections, moins d'essoufflement."],
+  [31536000, "1 an", "Ton risque d'infarctus est divisé par deux."],
+  [157680000, "5 ans", "Ton risque d'AVC se rapproche de celui d'un non-fumeur."],
+  [315360000, "10 ans", "Ton risque de cancer du poumon est environ divisé par deux."],
+  [473040000, "15 ans", "Ton risque cardiovasculaire rejoint celui d'un non-fumeur."]
+];
+const TIPS = [
+  "⏱️ Repousse de 10 minutes. Puis encore 10.",
+  "💧 Bois un grand verre d'eau, lentement.",
+  "🚶 Bouge : fais le tour du pâté de maisons ou monte un étage à pied.",
+  "🍬 Occupe ta bouche : chewing-gum, fruit, bâton de réglisse.",
+  "📱 Envoie un message à quelqu'un qui te soutient.",
+  "🖐️ Occupe tes mains : stylo, balle anti-stress, vaisselle.",
+  "🧠 Rappelle-toi : l'envie va passer, que tu fumes ou non."
+];
+const INFOS = [
+  ["Une envie, c'est une vague", "Elle monte, atteint un pic, puis redescend en quelques minutes, même si tu ne fumes pas. Plus tu en laisses passer, plus elles s'espacent."],
+  ["Commence par les cigarettes automatiques", "Café, voiture, sortie du travail… Celles que tu fumes par habitude sont souvent les plus faciles à supprimer en premier. Regarde tes déclencheurs dans Stats."],
+  ["Attention à la compensation", "En réduisant, on a tendance à tirer plus fort ou à fumer jusqu'au filtre. Essaie de garder ta façon de fumer habituelle."],
+  ["Réduire, c'est une étape", "Même quelques cigarettes par jour gardent un risque cardiovasculaire nettement plus élevé que zéro. La réduction est un excellent tremplin vers l'arrêt complet."],
+  ["Bien utiliser les patchs et les gommes", "Ils calment le manque et aident à réduire comme à arrêter. Ils peuvent être pris en charge sur prescription. Un dosage inadapté est une cause fréquente de manque qui persiste : ajuste-le avec ton médecin ou ton pharmacien, jamais seul·e."],
+  ["Ta montre peut t'aider", "Sur ton Apple Watch, l'app Pleine conscience propose Respirer et Réflexion (1 à 5 min). Dans l'app Watch de ton iPhone : Ma montre → Pleine conscience, tu règles ses rappels sur tes heures à risque."],
+  ["Change ton décor", "Fumer moins, c'est aussi casser les rituels : change de place pour le café, garde le paquet hors de portée, ne rachète pas de briquet."],
+  ["Tes rappels", "Une web app ne peut pas t'envoyer de notifications. Tes rappels (8 h, 13 h 30 et 21 h) sont dans l'app Rappels de ton iPhone."],
+  ["Tu n'es pas seul·e", "Tabac Info Service (39 89, appel gratuit) propose un accompagnement gratuit par des tabacologues, au téléphone ou via leur appli."]
+];
+const ENC = [
+  "Chaque cigarette en moins compte. Vraiment.",
+  "Tu n'as pas besoin d'être parfait, juste de continuer.",
+  "Ton corps te remercie déjà, même si tu ne le sens pas encore.",
+  "Une envie, c'est une vague : elle monte, puis elle redescend.",
+  "Les jours difficiles font partie du chemin, pas un retour en arrière.",
+  "Tu reprends le contrôle, une cigarette à la fois.",
+  "Noter honnêtement, c'est déjà une victoire.",
+  "Ce que tu fais demande du courage. Sois fier·e de toi."
+];
+const TRIGGERS = ["Café", "Stress", "Après repas", "Alcool", "Ennui", "Pause", "Entourage", "Réveil", "Voiture", "Autre"];
+const SYMPTOMS = [
+  ["irrit", "Irritabilité, nervosité", "Respire 3 minutes ou fais le circuit 7 min. Prévins tes proches que tu es à fleur de peau."],
+  ["anx", "Anxiété", "Respiration lente, marche un peu, limite le café."],
+  ["conc", "Difficulté à me concentrer", "Fais des pauses courtes, des tâches simples, aère-toi."],
+  ["sleep", "Sommeil perturbé", "Pas de café après 14 h. Si tu portes un patch 24 h et que tu dors mal, parles-en à ton pharmacien."],
+  ["faim", "Faim, grignotage", "Grand verre d'eau, fruits ou légumes croquants, chewing-gum sans sucre."],
+  ["const", "Constipation", "Bois de l'eau, mange des fibres et bouge un peu."],
+  ["toux", "Toux", "C'est normal : tes poumons se nettoient."],
+  ["moral", "Moral en baisse", "Parle à quelqu'un et fais une activité qui te fait plaisir."]
+];
+const EX = ["Jumping jacks", "Chaise contre le mur", "Pompes", "Abdos (crunchs)", "Montées sur une chaise", "Squats", "Dips sur une chaise", "Gainage (planche)", "Montées de genoux sur place", "Fentes", "Pompes avec rotation", "Gainage latéral"];
+const EXS = ["Jumping jacks", "Squats", "Pompes", "Abdos (crunchs)", "Montées de genoux sur place", "Gainage (planche)"];
+const MISSIONS = {
+  reduce: [["r1", "Repousse ta première cigarette de 30 minutes aujourd'hui."], ["r2", "Pas de cigarette avec le café ce matin : bois-le près d'une fenêtre ou en marchant."], ["r3", "Range ton paquet dans une autre pièce, hors de portée."], ["r4", "Note pourquoi tu fumes ta cigarette d'après le déjeuner : habitude, ennui, stress ?"], ["r5", "Quand une envie arrive, attends 10 minutes avant de fumer. Chronomètre-toi."], ["r6", "Fume ta prochaine cigarette debout, sans téléphone, en y pensant vraiment. Elle t'a plu ?"], ["r7", "Change ta routine après le repas : brosse-toi les dents ou marche 5 minutes."], ["r8", "N'en finis aucune aujourd'hui : éteins-les à la moitié."]],
+  prep: [["p1", "Choisis une récompense pour le jour J et écris-la."], ["p2", "Prévois ta parade pour ton moment le plus risqué."], ["p3", "Dis à une personne de confiance quel jour tu arrêtes."], ["p4", "Jette un cendrier ou un briquet dès aujourd'hui."], ["p5", "Relis tes raisons d'arrêter à voix haute."]],
+  quit: [["q1", "Lave ta veste préférée pour enlever l'odeur de tabac."], ["q2", "Note une chose que tu sens ou goûtes mieux depuis que tu as arrêté."], ["q3", "Prépare ta réponse si on te propose une cigarette."], ["q4", "Fais 10 minutes de marche à l'air libre."], ["q5", "Change l'endroit où tu avais l'habitude de fumer."], ["q6", "Bois 1,5 l d'eau aujourd'hui."]],
+  all: [["a1", "Fais le circuit 7 minutes (SOS → Bouger)."], ["a2", "Lance Respirer 2 fois sur ta montre ⌚."], ["a3", "Envoie un message à quelqu'un qui te soutient."], ["a4", "Calcule ce que tu feras avec l'argent économisé ce mois-ci."], ["a5", "Prends 10 minutes de grand air."]]
+};
+const CHECK = [
+  ["conf", "Confirmer ma date"],
+  ["proches", "Prévenir mes proches"],
+  ["subs", "Avoir mes patchs et gommes d'avance (et demander conseil au pharmacien sur le dosage)"],
+  ["risk", "Repérer mes 3 moments à risque et prévoir une parade pour chacun"],
+  ["trash", "Jeter cendriers, briquets et paquets la veille"],
+  ["reward", "Prévoir une activité ou une récompense pour le jour J"]
+];
+
+/* ---------- état ---------- */
+let S = null;
+function defaults() {
+  return {
+    v: 3, mode: "reduce", start: Date.now(), baseline: 15, pace: 3, packPrice: 13, perPack: 20,
+    quitAt: null, quitFrom: null, dDay: null, launched: false,
+    smokes: [], cravings: [], gums: [], patches: {}, symptoms: [], missions: {}, workouts: [], check: {},
+    subs: { patch: false, gum: false, patchMg: "", gumMg: "", patchPrice: 0, patchPer: 7, gumPrice: 0, gumPer: 30 },
+    reasons: [], goal: "", goalPrice: 0, badges: {}, updatedAt: Date.now()
+  };
+}
+function quitFromFor(s) {
+  const q = s.quitAt, ds = dayStart(q);
+  return ds + (s.smokes.some(x => dayStart(x.t) === ds) ? DAY : 0);
+}
+function migrate(s) {
+  if (!s) return null;
+  const d = defaults();
+  if (s.v >= 3) return Object.assign(d, s, { subs: Object.assign(d.subs, s.subs || {}) });
+  if (s.v === 2) { const m = Object.assign(d, s, { v: 3 }); if (m.mode === "quit" && m.quitAt && m.quitFrom == null) m.quitFrom = quitFromFor(m); return m; }
+  // v1 : ancienne version « arrêt seul »
+  const log = s.log || [];
+  const m = Object.assign(d, {
+    mode: "quit", start: s.quitAt || Date.now(), quitAt: s.quitAt || Date.now(), baseline: s.perDay || 15, packPrice: s.packPrice || 13, perPack: s.perPack || 20,
+    smokes: log.filter(l => !l.ok).map(l => ({ t: l.t, trig: l.trig === "—" ? null : l.trig })),
+    cravings: log.filter(l => l.ok).map(l => ({ t: l.t, int: l.int, trig: l.trig === "—" ? null : l.trig })),
+    reasons: s.reasons || [], goal: s.goal || "", goalPrice: s.goalPrice || 0
+  });
+  m.quitFrom = quitFromFor(m);
+  return m;
+}
+
+/* ---------- sauvegarde ---------- */
+let userDoc = null, saveT = null, saving = false, pending = false;
+function loadLocal() { try { const r = localStorage.getItem(KEY); return r ? migrate(JSON.parse(r)) : null; } catch (e) { return null; } }
+function saveLocal() { try { S ? localStorage.setItem(KEY, JSON.stringify(S)) : localStorage.removeItem(KEY); } catch (e) {} }
+function save() { if (S) S.updatedAt = Date.now(); saveLocal(); clearTimeout(saveT); saveT = setTimeout(pushRemote, 600); }
+async function pushRemote() {
+  if (!userDoc) return;
+  if (saving) { pending = true; return; }
+  saving = true;
+  try { await userDoc.set({ state: S ? JSON.stringify(S) : "" }); } catch (e) {}
+  saving = false;
+  if (pending) { pending = false; pushRemote(); }
+}
+async function initRemote() {
+  try {
+    if (!window.claude || !window.claude.use) return;
+    const db = await window.claude.use("db");
+    const user = await window.claude.use("user");
+    if (!db || !user) return;
+    const id = await user.id(); if (!id) return;
+    userDoc = db.collection("data/users/" + id).doc("state");
+    const snap = await Promise.race([userDoc.get(), new Promise(r => setTimeout(() => r(null), 10000))]);
+    const data = snap && (typeof snap.data === "function" ? snap.data() : snap);
+    let remote = null;
+    if (data && data.state) { try { remote = migrate(JSON.parse(data.state)); } catch (e) {} }
+    if (remote && (!S || (remote.updatedAt || 0) > (S.updatedAt || 0))) { S = remote; saveLocal(); boot(); }
+    else if (S) pushRemote();
+  } catch (e) {}
+}
+
+/* ---------- calculs ---------- */
+const dayIdx = t => Math.round((dayStart(t) - dayStart(S.start)) / DAY);
+const idxStart = i => dayStart(dayStart(S.start) + i * DAY + 6 * HR);
+const zeroIdx = () => Math.max(0, (S.baseline - 1) * S.pace);
+const effD = () => S.dDay || idxStart(zeroIdx());                  // début du jour J (réel ou prévu)
+const daysToD = () => Math.round((effD() - dayStart(Date.now())) / DAY);
+function target(i) {
+  if (S.mode === "quit" && S.quitFrom != null && idxStart(i) >= S.quitFrom - 2 * HR) return 0;
+  let n = Math.max(0, S.baseline - 1 - Math.floor(i / S.pace));
+  if (S.dDay) { if (idxStart(i) >= S.dDay - 2 * HR) return 0; n = Math.max(1, n); }
+  return n;
+}
+function tally(arr) { const c = {}; arr.forEach(s => { const i = dayIdx(s.t); if (i >= 0) c[i] = (c[i] || 0) + 1; }); return c; }
+const lastSmoke = () => S.smokes.length ? S.smokes.reduce((a, b) => b.t > a.t ? b : a) : null;
+function savings() {
+  const now = Date.now(), days = Math.max(0, (now - S.start) / DAY), sb = S.subs;
+  const since = S.smokes.filter(s => s.t >= S.start).length;
+  const avoided = Math.max(0, Math.floor(days * S.baseline) - since);
+  const gross = avoided * S.packPrice / S.perPack;
+  let cost = 0;
+  if (sb.gum && sb.gumPrice > 0) cost += S.gums.filter(g => g.t >= S.start).length * sb.gumPrice / (sb.gumPer || 1);
+  if (sb.patch && sb.patchPrice > 0) cost += Object.keys(S.patches).length * sb.patchPrice / (sb.patchPer || 1);
+  return { avoided, gross, cost, money: Math.max(0, gross - cost) };
+}
+function freeSec() {
+  if (S.mode !== "quit") return 0;
+  const ls = lastSmoke(), from = Math.max(S.quitAt || 0, ls ? ls.t : 0);
+  return Math.max(0, (Date.now() - from) / 1000);
+}
+function dayStats() {
+  const c = tally(S.smokes), today = dayIdx(Date.now());
+  let okDays = 0, streak = 0, bestStreak = 0, minRatio = 1, best = null;
+  for (let i = 0; i < today; i++) {
+    const n = c[i] || 0, ok = n <= target(i);
+    if (ok) { okDays++; streak++; bestStreak = Math.max(bestStreak, streak); } else streak = 0;
+    minRatio = Math.min(minRatio, n / S.baseline);
+    if (best === null || n < best) best = n;
+  }
+  return { c, today, okDays, streak, bestStreak, minRatio, best };
+}
+const gumsToday = () => { const t = dayIdx(Date.now()); return S.gums.filter(g => dayIdx(g.t) === t).length; };
+function gumRising() {
+  const today = dayIdx(Date.now()); if (today < 3) return false;
+  const g = tally(S.gums), a = g[today - 3] || 0, b = g[today - 2] || 0, c = g[today - 1] || 0;
+  return a < b && b < c;
+}
+function subsMg() { // nicotine des substituts aujourd'hui (d'après les doses saisies)
+  const sb = S.subs, dk = dayKey(Date.now());
+  const gm = sb.gum && +sb.gumMg > 0 ? gumsToday() * +sb.gumMg : 0;
+  const pm = sb.patch && +sb.patchMg > 0 && S.patches[dk] ? +sb.patchMg : 0;
+  return gm + pm;
+}
+function topHours() {
+  const hrs = Array(24).fill(0), lim = Date.now() - 30 * DAY;
+  S.smokes.filter(s => s.t >= lim).forEach(s => hrs[new Date(s.t).getHours()]++);
+  return { hrs, top: hrs.map((v, h) => [v, h]).sort((a, b) => b[0] - a[0]).filter(x => x[0] > 0) };
+}
+
+/* ---------- missions ---------- */
+function phase() {
+  if (S.mode === "quit") return "quit";
+  const to = daysToD(); return to >= 0 && to <= 7 ? "prep" : "reduce";
+}
+const hashStr = s => [...s].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
+function missionPool() { return [...MISSIONS[phase()], ...MISSIONS.all]; }
+function missionText(id) { for (const k in MISSIONS) { const m = MISSIONS[k].find(x => x[0] === id); if (m) return m[1]; } return ""; }
+function getMission() {
+  const dk = dayKey(Date.now());
+  if (!S.missions[dk]) { const p = missionPool(); S.missions[dk] = { id: p[hashStr(dk) % p.length][0], done: false, swaps: 0 }; save(); }
+  return S.missions[dk];
+}
+function missionStats() {
+  const done = Object.values(S.missions).filter(m => m.done).length;
+  let streak = 0, n = 0;
+  if (!(S.missions[dayKey(Date.now())] || {}).done) n = 1;       // aujourd'hui pas encore fait : on compte à partir d'hier
+  for (; n < 400; n++) { const m = S.missions[dayKey(Date.now() - n * DAY)]; if (m && m.done) streak++; else break; }
+  return { done, streak };
+}
+
+/* ---------- symptômes ---------- */
+function symDayAvg(idx) { const e = S.symptoms.filter(s => dayIdx(s.t) === idx); return e.length ? e.reduce((a, s) => a + s.int, 0) / e.length : null; }
+function symBetter() {
+  const today = dayIdx(Date.now()), avg = (a, b) => { const v = []; for (let i = a; i <= b; i++) { const x = symDayAvg(i); if (x !== null) v.push(x); } return v.length >= 2 ? v.reduce((p, q) => p + q, 0) / v.length : null; };
+  const rec = avg(today - 6, today), pri = avg(today - 13, today - 7);
+  return rec !== null && pri !== null && rec < pri;
+}
+function symAlerts() {
+  const today = dayIdx(Date.now()), out = [];
+  let strong = 0; for (let i = 0; i < 5; i++) if (S.symptoms.some(s => dayIdx(s.t) === today - i && s.int >= 4)) strong++;
+  if (strong >= 3) out.push("Des symptômes forts reviennent depuis plusieurs jours. " + (S.subs.patch || S.subs.gum ? "Ton dosage de substituts n'est peut-être pas suffisant : p" : "P") + "arles-en à ton pharmacien ou au 39 89.");
+  const mor = i => S.symptoms.some(s => dayIdx(s.t) === today - i && s.list.includes("moral"));
+  if (mor(0) && mor(1) && mor(2)) out.push("Ton moral est en baisse depuis 3 jours. Pense à en parler à ton médecin.");
+  return out;
+}
+function relayDay() { const c = tally(S.smokes), g = tally(S.gums), t = dayIdx(Date.now()); for (let i = 0; i <= t; i++) if ((g[i] || 0) > 0 && (g[i] || 0) > (c[i] || 0)) return true; return false; }
+
+/* ---------- badges ---------- */
+const B = (id, e, n, d, cat, fn) => ({ id, e, n, d, cat, fn });
+const BADGES = [
+  B("start", "🌱", "Premier pas", "Tu as commencé", "Démarrage", c => true),
+  B("honest", "📝", "Honnête", "Noter une cigarette", "Démarrage", c => c.smokes > 0),
+  B("reasons", "💬", "Mes raisons", "Écrire 3 raisons", "Démarrage", c => c.reasons >= 3),
+  B("goal", "🎁", "Cadeau mérité", "Atteindre ton objectif d'achat", "Démarrage", c => c.goalDone),
+  B("target1", "🎯", "Dans le mille", "1 journée dans l'objectif", "Réduction", c => c.okDays >= 1),
+  B("streak3", "🔥", "Sur la lancée", "3 jours de suite dans l'objectif", "Réduction", c => c.bestStreak >= 3),
+  B("streak7", "☄️", "Inarrêtable", "7 jours de suite dans l'objectif", "Réduction", c => c.bestStreak >= 7),
+  B("streak14", "🌋", "Increvable", "14 jours de suite dans l'objectif", "Réduction", c => c.bestStreak >= 14),
+  B("cut25", "✂️", "Un quart en moins", "Une journée à −25\u00a0%", "Réduction", c => c.minRatio <= .75),
+  B("cut50", "🌓", "Moitié moins", "Une journée à −50\u00a0%", "Réduction", c => c.minRatio <= .5),
+  B("cut75", "🌒", "Presque libre", "Une journée à −75\u00a0%", "Réduction", c => c.minRatio <= .25),
+  B("zero", "🌞", "Journée sans tabac", "Une journée entière à zéro", "Réduction", c => c.minRatio === 0),
+  B("crav1", "💪", "Résistant", "1 envie surmontée", "Envies", c => c.crav >= 1),
+  B("crav10", "🛡️", "Bouclier", "10 envies surmontées", "Envies", c => c.crav >= 10),
+  B("crav25", "⚔️", "Guerrier", "25 envies surmontées", "Envies", c => c.crav >= 25),
+  B("crav50", "🏰", "Forteresse", "50 envies surmontées", "Envies", c => c.crav >= 50),
+  B("crav100", "🗻", "Montagne", "100 envies surmontées", "Envies", c => c.crav >= 100),
+  B("m10", "🪙", "Tirelire", "10 € économisés", "Argent", c => c.money >= 10),
+  B("m50", "💶", "Cagnotte", "50 € économisés", "Argent", c => c.money >= 50),
+  B("m100", "💰", "Trésor", "100 € économisés", "Argent", c => c.money >= 100),
+  B("m200", "💎", "Pépite", "200 € économisés", "Argent", c => c.money >= 200),
+  B("m500", "🏝️", "Évasion", "500 € économisés", "Argent", c => c.money >= 500),
+  B("m1000", "🏦", "Coffre-fort", "1 000 € économisés", "Argent", c => c.money >= 1000),
+  B("av100", "🚭", "100 évitées", "100 cigarettes évitées", "Cigarettes évitées", c => c.avoided >= 100),
+  B("av500", "🌿", "500 évitées", "500 cigarettes évitées", "Cigarettes évitées", c => c.avoided >= 500),
+  B("av1000", "🌳", "1 000 évitées", "1 000 cigarettes évitées", "Cigarettes évitées", c => c.avoided >= 1000),
+  B("av5000", "🌲", "5 000 évitées", "5 000 cigarettes évitées", "Cigarettes évitées", c => c.avoided >= 5000),
+  B("free1", "🌬️", "24 h libre", "24 h sans fumer", "Sans fumer", c => c.free >= DAY / 1000),
+  B("free3", "🌤️", "3 jours libre", "3 jours sans fumer", "Sans fumer", c => c.free >= 3 * DAY / 1000),
+  B("free7", "🗓️", "1 semaine libre", "7 jours sans fumer", "Sans fumer", c => c.free >= 7 * DAY / 1000),
+  B("free14", "🌈", "2 semaines libre", "14 jours sans fumer", "Sans fumer", c => c.free >= 14 * DAY / 1000),
+  B("free30", "🏆", "1 mois libre", "30 jours sans fumer", "Sans fumer", c => c.free >= 30 * DAY / 1000),
+  B("free60", "🥇", "2 mois libre", "60 jours sans fumer", "Sans fumer", c => c.free >= 60 * DAY / 1000),
+  B("free100", "💯", "100 jours libre", "100 jours sans fumer", "Sans fumer", c => c.free >= 100 * DAY / 1000),
+  B("free180", "🎖️", "6 mois libre", "180 jours sans fumer", "Sans fumer", c => c.free >= 180 * DAY / 1000),
+  B("free365", "👑", "1 an libre", "365 jours sans fumer", "Sans fumer", c => c.free >= 365 * DAY / 1000),
+  B("subs1", "🩹", "Bien accompagné", "Noter un premier substitut", "Substituts", c => c.subs > 0),
+  B("relay", "📉", "Relais", "Une journée avec plus de substituts que de cigarettes", "Substituts", c => c.relay),
+  B("wk1", "🏃", "Premier circuit", "1 séance de 7 minutes", "Mouvement", c => c.wk >= 1),
+  B("wk10", "🏋️", "Sportif", "10 séances", "Mouvement", c => c.wk >= 10),
+  B("ms1", "✅", "Première mission", "1 mission faite", "Missions", c => c.msDone >= 1),
+  B("ms7", "📋", "Habitué", "7 missions faites", "Missions", c => c.msDone >= 7),
+  B("ms30", "🎓", "Expert", "30 missions faites", "Missions", c => c.msDone >= 30),
+  B("msS7", "🔗", "Série de 7", "7 jours de missions d'affilée", "Missions", c => c.msStreak >= 7),
+  B("dd_date", "📅", "Date choisie", "Choisir ton jour J", "Jour J", c => c.dDate),
+  B("dd_check", "☑️", "Prêt·e", "Checklist du jour J complète", "Jour J", c => c.check),
+  B("dd_go", "🚀", "Jour J", "Lancer l'arrêt le jour J", "Jour J", c => c.launched),
+  B("quit", "🚭", "Le grand saut", "Passer à l'arrêt total", "Jour J", c => c.quit),
+  B("better", "🌤️", "Ça va mieux", "Symptômes de manque en baisse sur 7 jours", "Santé", c => c.symBetter)
+];
+function badgeCtx() {
+  const ds = dayStats(), sv = savings(), ms = missionStats();
+  return {
+    smokes: S.smokes.length, okDays: ds.okDays, bestStreak: ds.bestStreak, minRatio: ds.today > 0 ? ds.minRatio : 1,
+    crav: S.cravings.length, money: sv.money, avoided: sv.avoided, free: freeSec(), quit: S.mode === "quit",
+    subs: S.gums.length + Object.keys(S.patches).length, relay: relayDay(), wk: S.workouts.length,
+    msDone: ms.done, msStreak: ms.streak, dDate: !!S.dDay, check: CHECK.every(c => S.check[c[0]]), launched: S.launched,
+    symBetter: symBetter(), goalDone: !!(S.goal && S.goalPrice > 0 && sv.money >= S.goalPrice), reasons: S.reasons.length
+  };
+}
+
+/* ============ Souffle — partie 2 : affichage et actions ============ */
+function seg(el, val, onChange) {
+  el.querySelectorAll("button").forEach(b => {
+    b.classList.toggle("on", b.dataset.v === String(val));
+    b.onclick = () => { el.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); el.dataset.val = b.dataset.v; onChange && onChange(b.dataset.v); };
+  });
+  el.dataset.val = String(val);
+}
+const num = sel => { const v = $(sel).value; return v === "" ? "" : +v; };
+
+/* ---------- navigation ---------- */
+function go(v) {
+  $$(".view").forEach(x => x.classList.remove("on"));
+  $("#v-" + v).classList.add("on");
+  $$("nav button").forEach(b => b.classList.toggle("on", b.dataset.go === v));
+  $("nav").style.display = v === "setup" ? "none" : "flex";
+  window.scrollTo(0, 0);
+  if (S) { if (v === "sos") showSosReason(); if (v === "stats") renderStats(); if (v === "badges") renderBadges(); if (v === "infos") renderInfos(); }
+}
+$$("[data-go]").forEach(b => b.addEventListener("click", () => go(b.dataset.go)));
+function boot() {
+  if (!S) { setupInit(); go("setup"); return; }
+  renderAll();
+  const cur = document.querySelector(".view.on");
+  go(!cur || cur.id === "v-setup" ? "home" : cur.id.slice(2));
+}
+function renderAll() { if (!S) return; renderHome(); renderReasons(); renderTips(); checkBadges(); }
+
+/* ---------- onboarding ---------- */
+function setupInit() {
+  $("#s-date").value = toLocalInput(Date.now());
+  const upd = () => {
+    const quit = $("#s-mode").dataset.val === "quit";
+    $("#s-reduceBox").style.display = quit ? "none" : "block";
+    $("#s-quitBox").style.display = quit ? "block" : "none";
+    const b = +$("#s-day").value || 0, p = +$("#s-pace").dataset.val;
+    if (b > 0) $("#s-proj").textContent = `Objectif aujourd'hui : ${Math.max(0, b - 1)}. À ce rythme, tu atteins zéro vers le ${fmtDate(Date.now() + (b - 1) * p * DAY)}.`;
+  };
+  seg($("#s-mode"), "reduce", upd); seg($("#s-pace"), "3", upd); $("#s-day").oninput = upd; upd();
+  $$("#s-subs .chip").forEach(c => c.onclick = () => c.classList.toggle("on"));
+}
+$("#setupForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const quit = $("#s-mode").dataset.val === "quit", why = $("#s-why").value.trim(), d = defaults();
+  const qa = quit ? (new Date($("#s-date").value).getTime() || Date.now()) : null;
+  Object.assign(d, { mode: quit ? "quit" : "reduce", start: quit ? qa : Date.now(), baseline: +$("#s-day").value, pace: +$("#s-pace").dataset.val,
+    packPrice: +$("#s-price").value, perPack: +$("#s-pack").value, quitAt: qa, reasons: why ? [why] : [] });
+  if (quit) d.quitFrom = dayStart(qa);
+  const on = $$("#s-subs .chip.on").map(c => c.dataset.v);
+  d.subs.patch = on.includes("patch"); d.subs.gum = on.includes("gum");
+  S = d; save(); renderAll(); go("home");
+});
+
+/* ---------- accueil ---------- */
+function renderHome() {
+  const reduce = S.mode === "reduce";
+  $("#actReduce").style.display = reduce ? "grid" : "none";
+  $("#actQuit").style.display = reduce ? "none" : "grid";
+  renderHero(); renderSubs(); renderSpacing(); renderDday(); renderMission(); renderEvening(); renderEnc(); renderTiles(); renderNext(); renderGoal();
+  tick();
+}
+function renderHero() {
+  const hero = $("#hero"), ds = dayStats(), now = Date.now(), c = ds.c[ds.today] || 0, tg = target(ds.today), ls = lastSmoke();
+  if (S.mode === "reduce") {
+    hero.classList.toggle("over", c > tg);
+    const pct = tg > 0 ? Math.min(100, c / tg * 100) : (c > 0 ? 100 : 0);
+    hero.innerHTML = `<div class="small" style="opacity:.85">Aujourd'hui</div>
+      <div class="big">${c}<span style="font-size:1.6rem;opacity:.8"> / ${tg}</span></div>
+      <div class="sub">${ls ? `Dernière il y a ${ago(now - ls.t)}` : "Aucune cigarette notée"}</div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <div class="small" style="opacity:.85;margin-top:10px">${S.dDay ? "Jour J" : "Objectif zéro"} : ${fmtDate(effD())}</div>`;
+  } else {
+    hero.classList.remove("over");
+    const slip = ls && ls.t > S.quitAt;
+    hero.innerHTML = `<div class="small" style="opacity:.85">Sans fumer depuis</div><div class="big" id="qDays"></div><div class="sub" id="qClock"></div>
+      ${slip ? `<div class="small" style="opacity:.85;margin-top:8px">Dernier écart il y a ${ago(now - ls.t)}. Ça ne remet pas tout à zéro.</div>` : ""}`;
+  }
+}
+function tick() {
+  if (!S || S.mode !== "quit") return;
+  const el = $("#qDays"); if (!el) return;
+  const sec = Math.max(0, (Date.now() - S.quitAt) / 1000);
+  const d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60), s = Math.floor(sec % 60);
+  el.textContent = d + (d > 1 ? " jours" : " jour");
+  $("#qClock").textContent = `${pad(h)} h ${pad(m)} min ${pad(s)} s`;
+}
+function renderSubs() {
+  const sb = S.subs, el = $("#subsCard");
+  if (!sb.gum && !sb.patch) { el.style.display = "none"; return; }
+  el.style.display = "block";
+  const dk = dayKey(Date.now()), gc = gumsToday(), mg = subsMg();
+  let h = `<div class="small muted">Substituts aujourd'hui</div>`;
+  if (sb.gum) h += `<div class="row" style="margin-top:8px"><div><b>${gc} gomme${gc > 1 ? "s" : ""}</b></div><button class="btn-primary" data-act="gum">+ Gomme</button></div>`;
+  if (sb.patch) { const on = !!S.patches[dk]; h += `<div class="row" style="margin-top:10px"><div><b>Patch</b><div class="small muted">${on ? "posé aujourd'hui ✓" : "pas encore posé"}</div></div><button class="${on ? "btn-ghost" : ""}" data-act="patch">${on ? "Annuler" : "Patch posé"}</button></div>`; }
+  if (mg > 0) h += `<div class="small muted" style="margin-top:8px">Nicotine des substituts : ${String(mg).replace(".", ",")} mg (d'après tes boîtes)</div>`;
+  if (gumRising()) h += `<div class="warn">Tu en prends de plus en plus ces derniers jours. Parles-en à ton pharmacien ou au 39 89 : ton dosage est peut-être à ajuster.</div>`;
+  h += `<div class="small muted" style="margin-top:8px">Souffle ne conseille aucun dosage. Demande à ton médecin, ton pharmacien ou au 39 89.</div>`;
+  el.innerHTML = h;
+}
+function renderSpacing() {
+  const el = $("#spacing");
+  if (S.mode !== "reduce") { el.style.display = "none"; return; }
+  const ds = dayStats(), tg = target(ds.today), ls = lastSmoke(), now = Date.now();
+  if (tg <= 0) { el.style.display = "none"; return; }
+  const interval = 16 * 60 / tg, since = ls ? (now - ls.t) / 60000 : Infinity;
+  el.style.display = "block";
+  el.innerHTML = since < interval
+    ? `<div class="small muted">Pour tenir ${tg} sur la journée</div><b>Essaie de tenir encore ${Math.ceil(interval - since)} min</b><div class="bar"><i style="width:${since / interval * 100}%;background:var(--sky)"></i></div>`
+    : `<div class="small muted">Pour tenir ${tg} sur la journée</div><b>Ton intervalle de ${String(Math.round(interval / 6) / 10).replace(".", ",")} h est passé 👍</b><div class="small muted" style="margin-top:4px">Chaque minute de plus est un bonus.</div>`;
+}
+function renderDday() {
+  const el = $("#dday");
+  if (S.mode !== "reduce") { el.style.display = "none"; return; }
+  const d = effD(), to = daysToD();
+  if (to <= 0) {
+    el.style.display = "block";
+    el.innerHTML = `<b>C'est le jour J 🚭</b><p class="small muted" style="margin:4px 0 10px">Tu as fait tout le chemin de la réduction. Prêt·e à arrêter complètement ?</p><button class="btn-primary btn-block" data-act="launch">Je passe à l'arrêt total</button>`;
+    return;
+  }
+  if (to > 7) { el.style.display = "none"; return; }
+  const done = CHECK.filter(c => S.check[c[0]]).length, th = topHours().top.slice(0, 3).map(x => `${x[1]}h–${x[1] + 1}h`).join(", ");
+  el.style.display = "block";
+  el.innerHTML = `<div class="row"><div><div class="small muted">Jour J · ${fmtDate(d, { weekday: "long", day: "numeric", month: "long" })}</div><div class="dj">J-${to}</div></div><button class="btn-ghost btn-sm" data-act="edit">Changer la date</button></div>
+    <div class="bar"><i style="width:${done / CHECK.length * 100}%"></i></div><div class="small muted" style="margin:6px 0 4px">${done}/${CHECK.length} préparatifs</div>`
+    + CHECK.map(([k, t]) => `<div class="check ${S.check[k] ? "on" : ""}" data-act="check" data-k="${k}"><div class="box">${S.check[k] ? "✓" : ""}</div><div class="tx">${t}${k === "risk" && th ? `<div class="small muted">Tes heures à risque : ${th}</div>` : ""}</div></div>`).join("");
+}
+function renderMission() {
+  const m = getMission(), ms = missionStats(), el = $("#mission");
+  el.innerHTML = `<div class="row"><div class="small muted">Mission du jour</div>${ms.streak > 0 ? `<div class="small muted">🔗 ${ms.streak} jour${ms.streak > 1 ? "s" : ""} de suite</div>` : ""}</div>
+    <div class="q">${esc(missionText(m.id))}</div>`
+    + (m.done ? `<div class="small">🎉 Mission accomplie !</div>`
+      : `<div class="grid"><button class="btn-primary" data-act="mdone">Fait ✓</button>${m.swaps < 1 ? `<button class="btn-ghost" data-act="mswap">Une autre</button>` : "<span></span>"}</div>`);
+}
+function renderEvening() {
+  const el = $("#evening"), h = new Date().getHours();
+  if (!(h >= 20 || h < 4)) { el.style.display = "none"; return; }
+  const ds = dayStats(), c = ds.c[ds.today] || 0, tg = target(ds.today), m = getMission();
+  el.style.display = "block";
+  el.innerHTML = `<b>Bilan du soir 🌙</b><div class="small muted" style="margin:4px 0 10px">${S.mode === "reduce" ? `${c} cigarette${c > 1 ? "s" : ""} sur ${tg} · ` : ""}${m.done ? "mission faite" : "mission pas encore faite"}. Comment te sens-tu ?</div><button class="btn-ghost btn-block" data-act="sym">Noter mes symptômes de manque</button>`;
+}
+function renderEnc() {
+  const ds = dayStats(), now = Date.now(), today = ds.today, c = ds.c[today] || 0, tg = target(today), lines = [];
+  if (S.mode === "reduce") {
+    const ySame = S.smokes.filter(s => dayIdx(s.t) === today - 1 && s.t <= now - DAY).length;
+    if (today > 0 && c < ySame) lines.push(`À cette heure-ci hier, tu en étais à ${ySame}. Tu fais mieux aujourd'hui !`);
+    else if (c < tg) lines.push(`${c} sur ${tg} aujourd'hui. Chaque cigarette pas fumée est un bonus.`);
+    else if (c === tg) lines.push("Objectif du jour atteint. Tiens jusqu'à ce soir et la journée est validée.");
+    else lines.push("Objectif dépassé, ce n'est pas grave. Chaque cigarette en moins compte encore aujourd'hui, et demain est un nouveau jour.");
+  } else {
+    const f = freeSec();
+    lines.push(f < 3 * 86400 ? "Les 3 premiers jours sont les plus durs. Tu es en plein dedans, et tu tiens." : `${Math.floor(f / 86400)} jours sans fumer. Le manque physique est derrière toi, le plus dur est fait.`);
+  }
+  if (ds.streak >= 2) lines.push(`🔥 ${ds.streak} jours de suite dans l'objectif.`);
+  $("#enc").innerHTML = `<div class="small muted">Message du jour</div><div class="q">${ENC[Math.floor(now / DAY) % ENC.length]}</div>${lines.map(l => `<div class="small" style="margin-top:8px">${l}</div>`).join("")}`;
+}
+function renderTiles() {
+  const sv = savings();
+  $("#h-money").textContent = euro(sv.money);
+  $("#h-money-l").textContent = sv.cost > 0 ? "économisés (substituts déduits)" : "économisés";
+  $("#h-cigs").textContent = sv.avoided.toLocaleString("fr-FR");
+  const lm = sv.avoided * 20;
+  $("#h-life").textContent = lm < 1440 ? Math.floor(lm / 60) + " h" : (lm / 1440).toFixed(1).replace(".", ",") + " j";
+  $("#h-won").textContent = S.cravings.length;
+}
+function renderNext() {
+  const reduce = S.mode === "reduce", ls = lastSmoke(), now = Date.now();
+  const ref = reduce ? (ls ? ls.t : S.start) : S.quitAt, sec = Math.max(0, (now - ref) / 1000), next = MS.find(x => x[0] > sec);
+  if (next) {
+    const prev = [...MS].reverse().find(x => x[0] <= sec), from = prev ? prev[0] : 0, pct = Math.min(100, (sec - from) / (next[0] - from) * 100);
+    $("#h-next").innerHTML = `<div class="small muted">${reduce ? "Depuis ta dernière cigarette · " : ""}prochaine étape dans ${dur(next[0] - sec)}</div><div style="font-weight:600;margin-top:4px">${next[1]} — ${next[2]}</div><div class="bar"><i style="width:${pct}%"></i></div>`;
+  } else $("#h-next").innerHTML = `<b>Toutes les étapes sont franchies. Incroyable. 🌳</b>`;
+}
+function renderGoal() {
+  const sv = savings();
+  if (S.goal && S.goalPrice > 0) {
+    const p = Math.min(100, sv.money / S.goalPrice * 100);
+    $("#goalBtn").textContent = "Modifier l'objectif";
+    $("#h-goal").innerHTML = `<div class="row"><b>${esc(S.goal)}</b><span class="muted small">${euro(sv.money)} / ${euro(S.goalPrice)}</span></div><div class="bar"><i style="width:${p}%;background:var(--gold)"></i></div>${p >= 100 ? '<div class="small" style="margin-top:8px">🎉 Objectif atteint, fais-toi plaisir !</div>' : ""}`;
+  } else {
+    $("#goalBtn").textContent = "Fixer un objectif d'achat";
+    $("#h-goal").innerHTML = `Sur un an, en arrêtant complètement, tu économiserais environ <b>${euro(S.baseline * 365 * S.packPrice / S.perPack)}</b>.`;
+  }
+}
+function renderReasons() {
+  $("#reasons").innerHTML = S.reasons.length ? S.reasons.map((r, i) => `<div class="reason"><span>${esc(r)}</span><button class="x" data-act="rdel" data-k="${i}" aria-label="Supprimer">✕</button></div>`).join("")
+    : `<p class="muted small">Note ce qui compte pour toi. On te le rappellera dans les moments difficiles.</p>`;
+}
+$("#reasonForm").addEventListener("submit", e => { e.preventDefault(); const v = $("#reasonIn").value.trim(); if (!v) return; S.reasons.push(v); $("#reasonIn").value = ""; save(); renderAll(); });
+
+/* ---------- actions (délégation) ---------- */
+const ACT = {
+  gum() { S.gums.push({ t: Date.now() }); save(); renderAll(); toast(`Gomme notée ✓ (${gumsToday()} aujourd'hui)`); },
+  patch() { const k = dayKey(Date.now()); if (S.patches[k]) delete S.patches[k]; else S.patches[k] = true; save(); renderAll(); },
+  mdone() { getMission().done = true; save(); renderAll(); toast("Mission accomplie 🎉"); },
+  mswap() {
+    const m = getMission(), p = missionPool(), cur = p.findIndex(x => x[0] === m.id), dk = dayKey(Date.now());
+    let n = (cur + 1 + hashStr(dk + "x") % 3) % p.length; if (p[n][0] === m.id) n = (n + 1) % p.length;
+    m.id = p[n][0]; m.swaps = 1; save(); renderAll();
+  },
+  launch() { switchToQuit(true); },
+  sym() { openSym(); },
+  edit() { openSettings(); },
+  check(b) { const k = b.dataset.k; S.check[k] = !S.check[k]; if (k === "conf" && S.check[k]) S.dDay = effD(); save(); renderAll(); },
+  rdel(b) { S.reasons.splice(+b.dataset.k, 1); save(); renderAll(); },
+  del(b) { delEvent(b.dataset.k, +b.dataset.t); }
+};
+document.addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (!b || !S) return; const f = ACT[b.dataset.act]; if (f) f(b); });
+function delEvent(k, t) {
+  const arr = { s: S.smokes, c: S.cravings, g: S.gums, y: S.symptoms }[k], i = arr ? arr.findIndex(x => x.t === t) : -1;
+  if (i >= 0) { arr.splice(i, 1); save(); renderAll(); renderStats(); toast("Supprimé"); }
+}
+
+/* ---------- cigarette / envie ---------- */
+let lastLogged = null;
+function logSmoke() {
+  const s = { t: Date.now(), trig: null }; S.smokes.push(s); lastLogged = s; save();
+  $("#smokeTitle").textContent = S.mode === "quit" ? "Un écart, pas un échec" : "Cigarette notée";
+  $("#smokeSub").textContent = S.mode === "quit" ? "Ton compteur d'arrêt continue. Note ce qui s'est passé pour mieux anticiper la prochaine fois." : "Noter honnêtement, c'est ce qui te fera progresser. Qu'est-ce qui l'a déclenchée ?";
+  $("#smokeTrig").innerHTML = TRIGGERS.map(t => `<button type="button" class="chip" data-v="${t}">${t}</button>`).join("");
+  $$("#smokeTrig .chip").forEach(b => b.onclick = () => { lastLogged.trig = b.dataset.v; save(); closeSmoke(); });
+  $("#smokeModal").classList.add("on");
+}
+function closeSmoke() { $("#smokeModal").classList.remove("on"); renderAll(); go("home"); }
+$("#smokeBtn").onclick = logSmoke; $("#slipBtn").onclick = logSmoke;
+$("#smokeSkip").onclick = closeSmoke;
+$("#smokeUndo").onclick = () => { S.smokes = S.smokes.filter(s => s !== lastLogged); save(); closeSmoke(); toast("Annulé"); };
+
+let draft = { int: 3, trig: null };
+function chipRow(el, items, key) {
+  el.innerHTML = items.map(v => `<button type="button" class="chip ${draft[key] === v ? "on" : ""}" data-v="${v}">${v}</button>`).join("");
+  el.querySelectorAll(".chip").forEach(c => c.onclick = () => { draft[key] = key === "int" ? +c.dataset.v : c.dataset.v; chipRow(el, items, key); });
+}
+function openCrav() { draft = { int: 3, trig: null }; chipRow($("#intensity"), [1, 2, 3, 4, 5], "int"); chipRow($("#cravTrig"), TRIGGERS, "trig"); $("#cravModal").classList.add("on"); }
+$("#cravCancel").onclick = () => $("#cravModal").classList.remove("on");
+$("#cravSave").onclick = () => {
+  S.cravings.push({ t: Date.now(), int: draft.int, trig: draft.trig }); save();
+  $("#cravModal").classList.remove("on"); renderAll(); go("home"); toast(`Envie surmontée ✓ — ça fait ${S.cravings.length} !`);
+};
+
+/* ---------- SOS : respiration ---------- */
+function showSosReason() {
+  const el = $("#sosReason");
+  if (S && S.reasons.length) { el.style.display = "block"; el.innerHTML = `<div class="small muted">Souviens-toi pourquoi tu fais ça</div><div class="q serif" style="font-size:1.2rem;margin-top:4px">« ${esc(S.reasons[Math.floor(Math.random() * S.reasons.length)])} »</div>`; }
+  else el.style.display = "none";
+}
+function renderTips() { $("#tips").innerHTML = TIPS.map(t => `<div class="tip">${t}</div>`).join(""); }
+let sosInt = null, breathT = null;
+function stopSos() { clearInterval(sosInt); clearTimeout(breathT); sosInt = null; $("#circle").style.transform = "scale(1)"; $("#breathTxt").textContent = "Prêt ?"; $("#sosTimer").textContent = "3:00"; $("#sosStart").textContent = "Démarrer 3 minutes"; }
+function breathe() {
+  const c = $("#circle"), t = $("#breathTxt"), steps = [["Inspire", 4000, 1.9], ["Bloque", 2000, 1.9], ["Expire", 6000, 1]]; let i = 0;
+  const step = () => { const [txt, ms, sc] = steps[i % 3]; t.textContent = txt; c.style.transitionDuration = (ms / 1000) + "s"; c.style.transform = `scale(${sc})`; i++; breathT = setTimeout(step, ms); };
+  step();
+}
+$("#sosStart").addEventListener("click", () => {
+  if (sosInt) { stopSos(); return; }
+  let left = 180; $("#sosStart").textContent = "Arrêter"; breathe();
+  sosInt = setInterval(() => { left--; $("#sosTimer").textContent = `${Math.floor(left / 60)}:${pad(left % 60)}`; if (left <= 0) { stopSos(); $("#sosTimer").textContent = "C'est passé ✨"; openCrav(); } }, 1000);
+});
+function setSosMode(m) {
+  $("#sosBreath").style.display = m === "breathe" ? "block" : "none";
+  $("#sosMove").style.display = m === "move" ? "block" : "none";
+  if (m !== "breathe") stopSos(); if (m !== "move") stopWorkout();
+}
+seg($("#sosSeg"), "breathe", setSosMode); seg($("#wkSeg"), "full");
+$("#won").onclick = () => { stopSos(); stopWorkout(); openCrav(); };
+$("#slip").onclick = () => { stopSos(); stopWorkout(); logSmoke(); };
+
+/* ---------- SOS : séance « bouger » ---------- */
+let wk = null, wl = null, ac = null;
+function beep(f, d) {
+  try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = f; g.gain.value = .15; o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + d); } catch (e) {}
+  try { navigator.vibrate && navigator.vibrate(60); } catch (e) {}
+}
+function startWorkout() {
+  const full = $("#wkSeg").dataset.val !== "short", list = full ? EX : EXS, work = full ? 30 : 25, rest = full ? 10 : 6;
+  wk = { list, work, rest, i: 0, phase: "prep", left: 5, elapsed: 0, total: list.length * work + (list.length - 1) * rest, kind: full ? "full" : "short", iv: null };
+  $("#wkSetup").style.display = "none"; $("#wkRun").style.display = "block";
+  try { navigator.wakeLock && navigator.wakeLock.request("screen").then(l => { wl = l; }).catch(() => {}); } catch (e) {}
+  beep(660, .15); drawWk(); wk.iv = setInterval(wkTick, 1000);
+}
+function wkTick() {
+  if (!wk) return;
+  wk.left--; if (wk.phase !== "prep") wk.elapsed++;
+  if (wk.left > 0 && wk.left <= 3) beep(660, .08);
+  if (wk.left <= 0) {
+    if (wk.phase === "prep") { wk.phase = "work"; wk.left = wk.work; beep(990, .25); }
+    else if (wk.phase === "work") { if (wk.i >= wk.list.length - 1) { finishWorkout(); return; } wk.phase = "rest"; wk.left = wk.rest; beep(520, .2); }
+    else { wk.i++; wk.phase = "work"; wk.left = wk.work; beep(990, .25); }
+  }
+  drawWk();
+}
+function drawWk() {
+  const w = wk;
+  $("#wkPhase").textContent = w.phase === "prep" ? "Prépare-toi" : w.phase === "work" ? `Exercice ${w.i + 1} sur ${w.list.length}` : "Récupère";
+  $("#wkName").textContent = w.phase === "prep" ? "C'est parti !" : w.phase === "rest" ? "Pause" : w.list[w.i];
+  $("#wkTime").textContent = w.left + " s";
+  const nxt = w.phase === "prep" ? w.list[0] : w.list[w.i + 1];
+  $("#wkNext").textContent = nxt ? "Ensuite : " + nxt : "Dernier exercice !";
+  $("#wkBar").style.width = Math.min(100, w.elapsed / w.total * 100) + "%";
+}
+function stopWorkout() {
+  if (wk) { clearInterval(wk.iv); wk = null; }
+  try { wl && wl.release(); } catch (e) {} wl = null;
+  $("#wkSetup").style.display = "block"; $("#wkRun").style.display = "none";
+}
+function finishWorkout() {
+  const kind = wk.kind; stopWorkout(); beep(990, .4);
+  S.workouts.push({ t: Date.now(), kind }); S.cravings.push({ t: Date.now(), int: 0, trig: null, tool: "move" });
+  save(); renderAll(); go("home"); toast("Séance terminée 💪 +1 envie surmontée");
+}
+$("#wkStart").onclick = startWorkout; $("#wkStop").onclick = stopWorkout;
+
+/* ---------- symptômes ---------- */
+let symDraft = null;
+function openSym() { symDraft = { sel: new Set(), int: 3 }; drawSymForm(); $("#symModal").classList.add("on"); }
+function drawSymForm() {
+  $("#symBody").innerHTML = `<h2 style="margin-top:0">Comment te sens-tu ?</h2><p class="muted small">Coche ce que tu ressens. Ces symptômes sont fréquents et passent en quelques semaines.</p>
+    <div class="chips" id="symChips" style="margin-top:10px">${SYMPTOMS.map(s => `<button type="button" class="chip ${symDraft.sel.has(s[0]) ? "on" : ""}" data-k="${s[0]}">${s[1]}</button>`).join("")}</div>
+    <label>Intensité globale</label><div class="chips" id="symInt">${[1, 2, 3, 4, 5].map(n => `<button type="button" class="chip ${symDraft.int === n ? "on" : ""}" data-n="${n}">${n}</button>`).join("")}</div>
+    <div class="grid" style="margin-top:18px"><button class="btn-ghost" id="symCancel">Annuler</button><button class="btn-primary" id="symSave">Voir mes conseils</button></div>`;
+  $$("#symChips .chip").forEach(c => c.onclick = () => { const k = c.dataset.k; symDraft.sel.has(k) ? symDraft.sel.delete(k) : symDraft.sel.add(k); drawSymForm(); });
+  $$("#symInt .chip").forEach(c => c.onclick = () => { symDraft.int = +c.dataset.n; drawSymForm(); });
+  $("#symCancel").onclick = () => $("#symModal").classList.remove("on");
+  $("#symSave").onclick = () => {
+    if (!symDraft.sel.size) { toast("Coche au moins un symptôme"); return; }
+    const list = [...symDraft.sel]; S.symptoms.push({ t: Date.now(), list, int: symDraft.int }); save(); renderAll(); drawSymAdvice(list);
+  };
+}
+function drawSymAdvice(list) {
+  $("#symBody").innerHTML = `<h2 style="margin-top:0">Tes conseils</h2>`
+    + list.map(k => { const s = SYMPTOMS.find(x => x[0] === k); return `<div class="adv"><b>${s[1]}</b><div class="small muted">${s[2]}</div></div>`; }).join("")
+    + `<p class="small muted" style="margin-top:10px">Ces symptômes sont normaux : plus forts les premiers jours, ils diminuent en quelques semaines.</p>`
+    + symAlerts().map(a => `<div class="warn">${a}</div>`).join("")
+    + `<button class="btn-primary btn-block" style="margin-top:16px" id="symOk">OK</button>`;
+  $("#symOk").onclick = () => $("#symModal").classList.remove("on");
+}
+
+/* ---------- stats ---------- */
+function renderStats() {
+  const ds = dayStats(), today = ds.today, c = ds.c, sb = S.subs, gc = tally(S.gums), sv = savings();
+  const done = Math.min(7, today); let sum7 = 0; for (let k = 1; k <= done; k++) sum7 += c[today - k] || 0;
+  if (done > 0) { const avg = sum7 / done; $("#st-avg").textContent = avg.toFixed(1).replace(".", ","); const red = Math.round((1 - avg / S.baseline) * 100); $("#st-red").textContent = (red > 0 ? "−" : red < 0 ? "+" : "") + Math.abs(red) + " %"; }
+  else { $("#st-avg").textContent = "–"; $("#st-red").textContent = "–"; }
+  $("#st-streak").textContent = ds.streak;
+  $("#st-best").textContent = ds.best === null ? "–" : ds.best + " cig.";
+
+  const sub = $("#st-sub");
+  if (sb.gum || sb.patch) {
+    const bits = []; if (sb.gum) bits.push(`${gumsToday()} gomme${gumsToday() > 1 ? "s" : ""} aujourd'hui`); if (sb.patch) bits.push(S.patches[dayKey(Date.now())] ? "patch posé" : "patch pas encore posé");
+    const mg = subsMg();
+    sub.style.display = "block";
+    sub.innerHTML = `<div class="small muted">Substituts</div><b>${bits.join(" · ")}</b>`
+      + (mg > 0 ? `<div class="small muted" style="margin-top:4px">Nicotine des substituts aujourd'hui : ${String(mg).replace(".", ",")} mg (d'après tes boîtes)</div>` : "")
+      + (sv.cost > 0 ? `<div class="small muted">Coût des substituts depuis le début : ${euro(sv.cost)}</div>` : "")
+      + (gumRising() ? `<div class="warn">Tu prends plus de gommes ces derniers jours. Parles-en à ton pharmacien ou au 39 89.</div>` : "");
+  } else sub.style.display = "none";
+
+  // 14 jours
+  const N = 14, W = 340, Hh = 150, pb = 22, pt = 10, bw = W / N;
+  const days = [...Array(N)].map((_, k) => { const i = today - (N - 1 - k); return { i, n: i >= 0 ? (c[i] || 0) : null, tg: i >= 0 ? target(i) : null, g: i >= 0 ? (gc[i] || 0) : 0, p: i >= 0 && !!S.patches[dayKey(idxStart(i) + 6 * HR)], d: new Date(idxStart(i)) }; });
+  const maxV = Math.max(S.baseline, ...days.map(d => Math.max(d.n || 0, d.g))) + 1, y = v => pt + (Hh - pb - pt) * (1 - v / maxV);
+  let svg = `<svg viewBox="0 0 ${W} ${Hh}" width="100%" role="img" aria-label="Cigarettes par jour">`;
+  svg += `<line x1="0" x2="${W}" y1="${y(S.baseline)}" y2="${y(S.baseline)}" stroke="var(--line)" stroke-dasharray="3 3"/><text x="${W - 2}" y="${y(S.baseline) - 4}" text-anchor="end" font-size="9" fill="var(--muted)">avant : ${S.baseline}</text>`;
+  days.forEach((d, k) => {
+    const x = k * bw + bw * .12, w = bw * .76, cw = sb.gum ? w / 2 : w;
+    if (d.n !== null) {
+      svg += `<rect x="${x}" y="${y(d.n)}" width="${cw}" height="${Math.max(0, y(0) - y(d.n))}" rx="3" fill="${d.n <= d.tg ? "var(--green)" : "var(--coral)"}" opacity="${d.i === today ? .6 : 1}"/>`;
+      if (d.n > 0) svg += `<text x="${x + cw / 2}" y="${y(d.n) - 3}" text-anchor="middle" font-size="9" fill="var(--muted)">${d.n}</text>`;
+      if (sb.gum && d.g > 0) svg += `<rect x="${x + cw}" y="${y(d.g)}" width="${cw}" height="${Math.max(0, y(0) - y(d.g))}" rx="3" fill="var(--sky)"/>`;
+      svg += `<line x1="${x - 2}" x2="${x + w + 2}" y1="${y(d.tg)}" y2="${y(d.tg)}" stroke="var(--ink)" stroke-width="1.5" opacity=".55"/>`;
+      if (sb.patch && d.p) svg += `<circle cx="${x + w / 2}" cy="${Hh - 16}" r="2.5" fill="var(--sky)"/>`;
+    }
+    svg += `<text x="${x + w / 2}" y="${Hh - 4}" text-anchor="middle" font-size="9" fill="var(--muted)">${d.i === today ? "auj." : d.d.toLocaleDateString("fr-FR", { weekday: "narrow" })}</text>`;
+  });
+  $("#chartDays").innerHTML = svg + "</svg>";
+  $("#legendDays").innerHTML = `<span style="--c:var(--green)">cigarettes, dans l'objectif</span><span style="--c:var(--coral)">au-dessus</span>${sb.gum ? '<span style="--c:var(--sky)">gommes</span>' : ""}${sb.patch ? '<span style="--c:var(--sky)">● patch posé</span>' : ""}<span style="--c:var(--ink)">objectif</span>`;
+
+  // symptômes
+  if (S.symptoms.length) {
+    $("#symBox").style.display = "block";
+    const vals = [...Array(N)].map((_, k) => { const i = today - (N - 1 - k); return { i, v: i >= 0 ? symDayAvg(i) : null }; }), H2 = 110;
+    let s3 = `<svg viewBox="0 0 ${W} ${H2}" width="100%" role="img" aria-label="Intensité des symptômes">`;
+    vals.forEach((d, k) => { const x = k * bw + bw * .12, w = bw * .76; if (d.v !== null) { const h = (H2 - 26) * d.v / 5; s3 += `<rect x="${x}" y="${H2 - 18 - h}" width="${w}" height="${h}" rx="3" fill="var(--gold)"/><text x="${x + w / 2}" y="${H2 - 21 - h}" text-anchor="middle" font-size="9" fill="var(--muted)">${d.v.toFixed(1).replace(".", ",")}</text>`; }
+      s3 += `<text x="${x + w / 2}" y="${H2 - 4}" text-anchor="middle" font-size="9" fill="var(--muted)">${d.i === today ? "auj." : new Date(idxStart(d.i)).toLocaleDateString("fr-FR", { weekday: "narrow" })}</text>`; });
+    $("#chartSym").innerHTML = s3 + "</svg>";
+    $("#symTxt").textContent = symBetter() ? "Tes symptômes sont en baisse sur les 7 derniers jours. Ça va mieux 🌤️" : "Intensité moyenne notée chaque jour (de 1 à 5). Elle baisse en général en quelques semaines.";
+  } else $("#symBox").style.display = "none";
+
+  // heures
+  const { hrs, top } = topHours(), hm = Math.max(1, ...hrs), H3 = 90;
+  let s2 = `<svg viewBox="0 0 ${W} ${H3}" width="100%" role="img" aria-label="Cigarettes par heure">`;
+  hrs.forEach((v, h) => { const b = W / 24, bh = (H3 - 20) * v / hm; s2 += `<rect x="${h * b + 1}" y="${H3 - 16 - bh}" width="${b - 2}" height="${bh}" rx="2" fill="var(--sky)"/>`; if (h % 6 === 0) s2 += `<text x="${h * b + 1}" y="${H3 - 3}" font-size="9" fill="var(--muted)">${h}h</text>`; });
+  $("#chartHours").innerHTML = s2 + "</svg>";
+  $("#hoursTxt").textContent = top.length ? `Tes moments les plus fréquents : ${top.slice(0, 2).map(x => x[1] + "h–" + (x[1] + 1) + "h").join(" et ")}. C'est là qu'il faut prévoir une parade.` : "Note tes cigarettes pour voir apparaître tes moments à risque.";
+
+  // déclencheurs
+  const cnt = {}; S.smokes.forEach(s => { if (s.trig) cnt[s.trig] = (cnt[s.trig] || 0) + 1; });
+  const tr = Object.entries(cnt).sort((a, b) => b[1] - a[1]), mx = tr[0] ? tr[0][1] : 1;
+  $("#triggers").innerHTML = tr.length ? tr.map(([k, v]) => `<div style="margin:6px 0"><div class="row small"><span>${k}</span><span class="muted">${v}</span></div><div class="bar"><i style="width:${v / mx * 100}%;background:var(--sky)"></i></div></div>`).join("")
+    + `<p class="small muted" style="margin-top:10px">Astuce : attaque en premier la cigarette « ${tr[0][0]} ». Remplace-la par autre chose pendant quelques jours.</p>`
+    : `<p class="muted small">Indique un déclencheur quand tu notes une cigarette pour les voir ici.</p>`;
+
+  // historique
+  const ev = [...S.smokes.map(s => ({ ...s, k: "s" })), ...S.cravings.map(s => ({ ...s, k: "c" })), ...S.gums.map(s => ({ ...s, k: "g" })), ...S.symptoms.map(s => ({ ...s, k: "y" }))].sort((a, b) => b.t - a.t).slice(0, 50);
+  const label = e => e.k === "s" ? `Cigarette${e.trig ? " · " + e.trig : ""}` : e.k === "g" ? "Gomme" : e.k === "y" ? "Symptômes · " + e.list.map(l => (SYMPTOMS.find(x => x[0] === l) || [0, l])[1]).join(", ") : e.tool === "move" ? "Séance bouger" : `Envie surmontée${e.trig ? " · " + e.trig : ""}${e.int ? " · " + e.int + "/5" : ""}`;
+  $("#logList").innerHTML = ev.length ? ev.map(e => { const d = new Date(e.t); return `<div class="log"><div><div>${esc(label(e))}</div><div class="small muted">${d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })} à ${pad(d.getHours())}h${pad(d.getMinutes())}</div></div>
+    <div class="row"><span class="pill ${e.k === "s" ? "ko" : e.k === "c" ? "ok" : "sk"}">${e.k === "s" ? "Fumée" : e.k === "c" ? "Tenu" : e.k === "g" ? "Substitut" : "Manque"}</span><button class="x" data-act="del" data-k="${e.k}" data-t="${e.t}" aria-label="Supprimer">✕</button></div></div>`; }).join("") : `<p class="muted small">Rien pour l'instant.</p>`;
+}
+
+/* ---------- badges ---------- */
+let badgeQueue = [];
+function checkBadges() {
+  if (!S) return;
+  const ctx = badgeCtx(), fresh = [];
+  let changed = false;
+  BADGES.forEach(b => { if (!S.badges[b.id] && b.fn(ctx)) { S.badges[b.id] = Date.now(); changed = true; if (b.id !== "start") fresh.push(b); } }); // « Premier pas » est attribué sans fenêtre
+  if (changed) save();
+  if (fresh.length) { badgeQueue.push(...fresh); if (!$("#badgeModal").classList.contains("on")) showBadge(); }
+}
+function showBadge() {
+  const b = badgeQueue[0]; if (!b) return;
+  const more = badgeQueue.length - 1; badgeQueue = [];
+  $("#bmE").textContent = b.e; $("#bmN").textContent = b.n; $("#bmD").textContent = b.d;
+  $("#bmMore").textContent = more > 0 ? `+ ${more} autre${more > 1 ? "s" : ""} badge${more > 1 ? "s" : ""} débloqué${more > 1 ? "s" : ""}` : "";
+  $("#badgeModal").classList.add("on");
+}
+$("#bmOk").onclick = () => { $("#badgeModal").classList.remove("on"); if ($("#v-badges").classList.contains("on")) renderBadges(); };
+function renderBadges() {
+  const got = BADGES.filter(b => S.badges[b.id]).length;
+  $("#badgeCount").textContent = `${got} sur ${BADGES.length} débloqués`;
+  const cats = []; BADGES.forEach(b => { if (!cats.includes(b.cat)) cats.push(b.cat); });
+  $("#badgeGrid").innerHTML = cats.map(cat => `<div class="cat">${cat}</div><div class="badges">${BADGES.filter(b => b.cat === cat).map(b => { const t = S.badges[b.id];
+    return `<div class="badge ${t ? "got" : "locked"}"><div class="e">${b.e}</div><div class="n">${b.n}</div><div class="d">${t ? fmtDate(t, { day: "numeric", month: "short" }) : b.d}</div></div>`; }).join("")}</div>`).join("");
+}
+
+/* ---------- infos ---------- */
+function renderInfos() {
+  const reduce = S.mode === "reduce", ls = lastSmoke(), ref = reduce ? (ls ? ls.t : S.start) : S.quitAt, sec = Math.max(0, (Date.now() - ref) / 1000);
+  $("#msIntro").textContent = reduce ? "Depuis ta dernière cigarette. En mode réduction, les premières étapes se rejouent à chaque fois : plus tu espaces, plus ton corps récupère." : "Depuis ton arrêt total.";
+  $("#milestones").innerHTML = MS.map(([t, l, txt]) => { const dn = sec >= t, pct = Math.min(100, sec / t * 100);
+    return `<div class="ms ${dn ? "done" : ""}"><div class="dot">${dn ? "✓" : ""}</div><div style="flex:1"><div class="t">${l}</div><div class="small muted">${txt}</div>${dn ? "" : `<div class="bar"><i style="width:${pct}%"></i></div>`}</div></div>`; }).join("");
+  $("#infos").innerHTML = INFOS.map(([t, d]) => `<div class="info"><b>${t}</b><span class="small muted">${d}</span></div>`).join("");
+}
+
+/* ---------- mode et réglages ---------- */
+function switchToQuit(fromLaunch) {
+  const ls = lastSmoke();
+  S.mode = "quit"; S.quitAt = ls ? ls.t : Date.now(); S.quitFrom = quitFromFor(S); if (fromLaunch) S.launched = true;
+  save(); $("#setModal").classList.remove("on"); renderAll(); go("home"); toast("Le grand saut ! Tu peux le faire. 🚭");
+}
+$("#setToQuit").onclick = () => switchToQuit(false);
+$("#setToReduce").onclick = () => { S.mode = "reduce"; S.quitAt = null; S.quitFrom = null; save(); $("#setModal").classList.remove("on"); renderAll(); go("home"); toast("Retour en mode réduction. On avance à ton rythme."); };
+function subFields() { const on = $$("#e-subs .chip.on").map(c => c.dataset.v); $("#e-patchBox").style.display = on.includes("patch") ? "block" : "none"; $("#e-gumBox").style.display = on.includes("gum") ? "block" : "none"; }
+function openSettings() {
+  const sb = S.subs, q = S.mode === "quit";
+  $("#e-day").value = S.baseline; $("#e-price").value = S.packPrice; $("#e-pack").value = S.perPack;
+  $("#e-goal").value = S.goal || ""; $("#e-goalp").value = S.goalPrice || "";
+  seg($("#e-pace"), String(S.pace));
+  $("#e-dday").value = S.dDay ? toDateInput(S.dDay + 6 * HR) : "";
+  $("#e-reduceBox").style.display = q ? "none" : "block"; $("#e-quitBox").style.display = q ? "block" : "none";
+  if (q) $("#e-date").value = toLocalInput(S.quitAt);
+  $$("#e-subs .chip").forEach(c => { c.classList.toggle("on", !!sb[c.dataset.v]); c.onclick = () => { c.classList.toggle("on"); subFields(); }; });
+  $("#e-patchMg").value = sb.patchMg; $("#e-patchPrice").value = sb.patchPrice || ""; $("#e-patchPer").value = sb.patchPer || 7;
+  $("#e-gumMg").value = sb.gumMg; $("#e-gumPrice").value = sb.gumPrice || ""; $("#e-gumPer").value = sb.gumPer || 30;
+  subFields();
+  $("#setToQuit").style.display = q ? "none" : "block"; $("#setToReduce").style.display = q ? "block" : "none";
+  $("#resetConfirm").style.display = "none"; $("#setModal").classList.add("on");
+}
+$("#openSettings").onclick = openSettings;
+$("#goalBtn").onclick = () => { openSettings(); setTimeout(() => $("#e-goal").focus(), 200); };
+$("#setCancel").onclick = () => $("#setModal").classList.remove("on");
+$("#setForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const on = $$("#e-subs .chip.on").map(c => c.dataset.v);
+  Object.assign(S, { baseline: +$("#e-day").value, pace: +$("#e-pace").dataset.val, packPrice: +$("#e-price").value, perPack: +$("#e-pack").value, goal: $("#e-goal").value.trim(), goalPrice: +$("#e-goalp").value || 0 });
+  Object.assign(S.subs, { patch: on.includes("patch"), gum: on.includes("gum"), patchMg: num("#e-patchMg"), patchPrice: +$("#e-patchPrice").value || 0, patchPer: +$("#e-patchPer").value || 7, gumMg: num("#e-gumMg"), gumPrice: +$("#e-gumPrice").value || 0, gumPer: +$("#e-gumPer").value || 30 });
+  if (S.mode === "reduce") { const dd = $("#e-dday").value; S.dDay = dd ? dayStart(new Date(dd + "T12:00").getTime()) : null; }
+  else { const t = new Date($("#e-date").value).getTime(); if (t) { S.quitAt = t; S.quitFrom = quitFromFor(S); } }
+  save(); renderAll(); $("#setModal").classList.remove("on"); toast("Enregistré");
+});
+$("#resetBtn").onclick = () => $("#resetConfirm").style.display = "block";
+$("#resetYes").onclick = () => { S = null; save(); $("#setModal").classList.remove("on"); boot(); };
+$$(".modal").forEach(m => m.addEventListener("click", e => { if (e.target === m && m.id !== "badgeModal") m.classList.remove("on"); }));
+
+/* ---------- démarrage ---------- */
+S = loadLocal();
+boot();
+initRemote();
+setInterval(tick, 1000);
+setInterval(() => { if (S && $("#v-home").classList.contains("on")) { renderHome(); checkBadges(); } }, 30000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden && S) renderAll(); });
+
+</script>
+</body>
+</html>
