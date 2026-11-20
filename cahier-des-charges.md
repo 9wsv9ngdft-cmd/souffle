@@ -200,6 +200,7 @@ Un écran de célébration s'affiche quand on débloque un badge.
 - Une seule page web, pensée pour le téléphone, avec un mode sombre automatique
 - Données privées, enregistrées dans le compte (synchronisées entre appareils)
 - 5 onglets : **Accueil · SOS · Stats · Badges · Infos**
+- **Écran d'accueil et mises à jour** : l'icône ajoutée à l'écran d'accueil (Safari → Partager → Sur l'écran d'accueil) ouvre le lien de l'appli, donc la dernière version publiée, sans mise à jour manuelle. Si une nouveauté n'apparaît pas, fermer et rouvrir l'appli. Les données sont dans le compte, pas sur l'icône. Le numéro de version est affiché dans Infos pour vérifier.
 - Réglages : départ, rythme, prix, objectif d'achat, changement de mode, tout effacer
 
 ---
@@ -290,7 +291,26 @@ Dans les réglages, on coche « J'utilise des substituts », puis on choisit ses
 
 ---
 
-## 16. Inspirations : Kwit, Tabac Info Service, Stop-tabac, QuitNow!, Smoke Free
+## 16. Cigarette électronique ✅
+- Choix « Cigarette électronique » parmi les substituts (onboarding et réglages).
+- Réglages : nicotine du liquide en mg/ml (0 = sans nicotine), prix du flacon, durée approximative d'un flacon (pour le coût).
+- Bouton **+ Vape** sur l'accueil : chaque pause vape est comptée comme les gommes (stats, historique, badge « Relais », coût déduit des économies).
+- Avec nicotine : Souffle affiche la concentration saisie mais **ne conseille jamais de dosage** → médecin, pharmacien, 39 89.
+- Message de fond : outil de transition, pas sans risque ; l'objectif reste zéro.
+
+## 17. Pause fun et rappels ludiques ✅
+Principe : léger, jamais envahissant, optionnel.
+- **Anecdote du jour** sur l'accueil (« Tiens, le savais-tu ? ») avec bouton « Une autre ».
+- **Quiz** : 3e onglet du SOS (12 questions, explication après chaque réponse). Bonne réponse = confettis.
+- **Confettis** à la mission accomplie, au badge débloqué, à une bonne réponse (coupés si l'appareil demande moins d'animations).
+- **Badges Fun** : Curieux·se (5 bonnes réponses), Pro du quiz (15).
+- **Rappels** : le texte de la notification est ludique (« Tiens, le savais-tu ? », « Un quiz de 30 secondes ? ») et le lien `#quiz` ouvre directement le quiz.
+- **Petit point** (carte sur l'accueil) : « Depuis tout à l'heure, ça s'est passé comment ? » avec 3 réponses : *Rien fumé*, *Gomme ou vape* (notée comme substitut), *J'ai craqué* (ouvre la saisie d'une cigarette). Chaque réponse donne un conseil bienveillant, sans culpabiliser. La carte revient 90 min après.
+- **Rythme adaptatif** : sur 3 jours, si les écarts sont fréquents, l'appli propose plus de soutien (rappel en plus, pharmacien, 39 89) ; si tout va bien, elle propose d'espacer les rappels.
+- Les rappels du téléphone ne s'adaptent pas seuls : c'est l'appli qui suggère, la personne décide.
+- Limite : une notification iPhone ne peut pas contenir de quiz ni d'animation : elle sert d'accroche, le jeu est dans l'appli.
+
+## 18. Inspirations : Kwit, Tabac Info Service, Stop-tabac, QuitNow!, Smoke Free
 
 ### Kwit
 
@@ -324,7 +344,7 @@ Kwit est une app française d'arrêt du tabac, validée par l'OMS. La version gr
 
 ---
 
-## 17. Questions ouvertes
+## 19. Questions ouvertes
 
 - [x] Horaires des rappels : 8 h · 13 h 30 · 21 h
 - [x] Apple Watch : oui → raccourci vers *Respirer* dans le SOS
@@ -334,3 +354,5 @@ Kwit est une app française d'arrêt du tabac, validée par l'OMS. La version gr
 - [x] Idées retenues : mission du jour, préparer le jour J, symptômes de manque, plus de badges
 - [x] Non retenues pour l'instant : messages de proches, niveaux, humeur du soir, chat communautaire
 - [x] Substituts : patchs + gommes à mâcher
+- Rappels du téléphone : en pause pour l'instant (3 d'origine ; 3 supplémentaires ont été créés par erreur, à supprimer ou garder). Idée : 6 par jour au ton « petit point ».
+- Vape avec nicotine : faut-il aussi suivre le nombre de flacons restants ?

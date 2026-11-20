@@ -23,6 +23,7 @@ function boot() {
   renderAll();
   const cur = document.querySelector(".view.on");
   go(!cur || cur.id === "v-setup" ? "home" : cur.id.slice(2));
+  if (location.hash === "#quiz") { go("sos"); $("#sosSeg").querySelector("[data-v=quiz]").click(); }
 }
 function renderAll() { if (!S) return; renderHome(); renderReasons(); renderTips(); checkBadges(); }
 
@@ -47,7 +48,7 @@ $("#setupForm").addEventListener("submit", e => {
     packPrice: +$("#s-price").value, perPack: +$("#s-pack").value, quitAt: qa, reasons: why ? [why] : [] });
   if (quit) d.quitFrom = dayStart(qa);
   const on = $$("#s-subs .chip.on").map(c => c.dataset.v);
-  d.subs.patch = on.includes("patch"); d.subs.gum = on.includes("gum");
+  d.subs.patch = on.includes("patch"); d.subs.gum = on.includes("gum"); d.subs.vape = on.includes("vape");
   S = d; save(); renderAll(); go("home");
 });
 
@@ -56,7 +57,7 @@ function renderHome() {
   const reduce = S.mode === "reduce";
   $("#actReduce").style.display = reduce ? "grid" : "none";
   $("#actQuit").style.display = reduce ? "none" : "grid";
-  renderHero(); renderSubs(); renderSpacing(); renderDday(); renderMission(); renderEvening(); renderEnc(); renderTiles(); renderNext(); renderGoal();
+  renderHero(); renderCi(); renderSubs(); renderSpacing(); renderDday(); renderMission(); renderEvening(); renderEnc(); renderAnec(); renderTiles(); renderNext(); renderGoal();
   tick();
 }
 function renderHero() {
@@ -86,11 +87,12 @@ function tick() {
 }
 function renderSubs() {
   const sb = S.subs, el = $("#subsCard");
-  if (!sb.gum && !sb.patch) { el.style.display = "none"; return; }
+  if (!sb.gum && !sb.patch && !sb.vape) { el.style.display = "none"; return; }
   el.style.display = "block";
   const dk = dayKey(Date.now()), gc = gumsToday(), mg = subsMg();
   let h = `<div class="small muted">Substituts aujourd'hui</div>`;
   if (sb.gum) h += `<div class="row" style="margin-top:8px"><div><b>${gc} gomme${gc > 1 ? "s" : ""}</b></div><button class="btn-primary" data-act="gum">+ Gomme</button></div>`;
+  if (sb.vape) { const vc = vapesToday(), nic = +sb.vapeNic > 0; h += `<div class="row" style="margin-top:10px"><div><b>${vc} pause${vc > 1 ? "s" : ""} vape</b><div class="small muted">${nic ? "avec nicotine (" + String(sb.vapeNic).replace(".", ",") + " mg/ml)" : "sans nicotine"}</div></div><button class="btn-primary" data-act="vape">+ Vape</button></div>`; }
   if (sb.patch) { const on = !!S.patches[dk]; h += `<div class="row" style="margin-top:10px"><div><b>Patch</b><div class="small muted">${on ? "posé aujourd'hui ✓" : "pas encore posé"}</div></div><button class="${on ? "btn-ghost" : ""}" data-act="patch">${on ? "Annuler" : "Patch posé"}</button></div>`; }
   if (mg > 0) h += `<div class="small muted" style="margin-top:8px">Nicotine des substituts : ${String(mg).replace(".", ",")} mg (d'après tes boîtes)</div>`;
   if (gumRising()) h += `<div class="warn">Tu en prends de plus en plus ces derniers jours. Parles-en à ton pharmacien ou au 39 89 : ton dosage est peut-être à ajuster.</div>`;
@@ -153,6 +155,58 @@ function renderEnc() {
   if (ds.streak >= 2) lines.push(`🔥 ${ds.streak} jours de suite dans l'objectif.`);
   $("#enc").innerHTML = `<div class="small muted">Message du jour</div><div class="q">${ENC[Math.floor(now / DAY) % ENC.length]}</div>${lines.map(l => `<div class="small" style="margin-top:8px">${l}</div>`).join("")}`;
 }
+function ciRhythm() { // sur les 3 derniers jours, d'après les points « depuis tout à l'heure »
+  const l = S.ci.filter(x => x.t > Date.now() - 3 * DAY); if (l.length < 6) return "";
+  const sm = l.filter(x => x.r === "smoke").length / l.length, ok = l.filter(x => x.r === "ok").length / l.length;
+  if (sm >= .4) return "Ces derniers jours, ça craque assez souvent. Si tu veux plus de soutien, ajoute un rappel. Et si ça dure, parles-en à ton pharmacien ou au 39 89.";
+  if (ok >= .8) return "Ça va très bien en ce moment ! Tu peux espacer tes rappels si tu veux te faire plus discret.";
+  return "";
+}
+function renderCi() {
+  const el = $("#ciCard"), c = S.ci[S.ci.length - 1];
+  if (c && Date.now() - c.t < 90 * 60000) {
+    const rh = ciRhythm();
+    el.innerHTML = `<div class="small muted">Point de ${new Date(c.t).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</div><div style="margin-top:6px">${esc(c.adv)}</div>${rh ? `<div class="small muted" style="margin-top:8px">${esc(rh)}</div>` : ""}`;
+    return;
+  }
+  el.innerHTML = `<div class="small muted">Petit point</div><div class="serif" style="font-size:1.1rem;margin:4px 0 10px">Depuis tout à l'heure, ça s'est passé comment ?</div><div class="grid"><button class="btn-primary" data-act="ci" data-r="ok">Rien fumé 💪</button><button class="btn-ghost" data-act="ci" data-r="sub">Gomme ou vape</button></div><button class="btn-ghost btn-block" style="margin-top:8px" data-act="ci" data-r="smoke">J'ai craqué</button>`;
+}
+let anecI = -1;
+function renderAnec(next) {
+  if (anecI < 0 || next) anecI = next ? (anecI + 1 + Math.floor(Math.random() * (ANEC.length - 1))) % ANEC.length : Math.floor(Date.now() / DAY) % ANEC.length;
+  if (next) { S.fun.anec++; save(); }
+  $("#anec").innerHTML = `<div class="small muted">💡 Tiens, le savais-tu ?</div><div style="margin-top:6px">${ANEC[anecI]}</div><div class="grid" style="margin-top:10px"><button class="btn-ghost" id="anecNext">Une autre</button><button class="btn-ghost" id="anecQuiz">🎲 Un quiz</button></div>`;
+  $("#anecNext").onclick = () => { renderAnec(true); };
+  $("#anecQuiz").onclick = () => { go("sos"); $("#sosSeg").querySelector('[data-v=quiz]').click(); };
+}
+function confetti() {
+  const cols = ["#2f7d5b", "#e8836b", "#5b9bd5", "#f2c14e", "#9b7fd1"];
+  for (let i = 0; i < 28; i++) {
+    const e = document.createElement("i"); e.className = "conf";
+    e.style.left = (8 + Math.random() * 84) + "vw"; e.style.background = cols[i % cols.length];
+    e.style.setProperty("--dx", (Math.random() * 120 - 60) + "px"); e.style.setProperty("--r", (Math.random() * 720 - 360) + "deg");
+    e.style.animationDelay = (Math.random() * .3) + "s";
+    document.body.appendChild(e); setTimeout(() => e.remove(), 2200);
+  }
+}
+let qzOrder = [], qzI = 0;
+function quizNext() {
+  if (!qzOrder.length || qzI >= qzOrder.length) { qzOrder = QUIZ.map((_, i) => i).sort(() => Math.random() - .5); qzI = 0; }
+  const q = QUIZ[qzOrder[qzI++]];
+  $("#qzCount").textContent = `${S.fun.ok} bonne${S.fun.ok > 1 ? "s" : ""} réponse${S.fun.ok > 1 ? "s" : ""} sur ${S.fun.quiz}`;
+  $("#qzQ").textContent = q[0]; $("#qzRes").textContent = ""; $("#qzNext").style.display = "none";
+  $("#qzOpts").innerHTML = q[1].map((o, i) => `<button type="button" data-i="${i}">${esc(o)}</button>`).join("");
+  $$("#qzOpts button").forEach(b => b.onclick = () => {
+    const good = +b.dataset.i === q[2]; S.fun.quiz++; if (good) S.fun.ok++; save();
+    $$("#qzOpts button").forEach(x => { x.disabled = true; if (+x.dataset.i === q[2]) x.classList.add("on"); });
+    $("#qzRes").innerHTML = (good ? "🎉 <b>Bravo !</b> " : "Presque ! ") + esc(q[3]);
+    $("#qzCount").textContent = `${S.fun.ok} bonne${S.fun.ok > 1 ? "s" : ""} réponse${S.fun.ok > 1 ? "s" : ""} sur ${S.fun.quiz}`;
+    $("#qzNext").style.display = "block";
+    if (good) { confetti(); $("#qzQ").classList.add("pop"); setTimeout(() => $("#qzQ").classList.remove("pop"), 600); }
+    checkBadges();
+  });
+}
+$("#qzNext").onclick = quizNext;
 function renderTiles() {
   const sv = savings();
   $("#h-money").textContent = euro(sv.money);
@@ -189,9 +243,18 @@ $("#reasonForm").addEventListener("submit", e => { e.preventDefault(); const v =
 
 /* ---------- actions (délégation) ---------- */
 const ACT = {
+  ci(b) {
+    const r = b.dataset.r, pool = ADV[r], adv = pool[Math.floor(Math.random() * pool.length)];
+    S.ci.push({ t: Date.now(), r, adv }); if (S.ci.length > 200) S.ci.shift();
+    if (r === "sub") { if (S.subs.vape) S.vapes.push({ t: Date.now() }); else S.gums.push({ t: Date.now() }); }
+    save(); renderAll();
+    if (r === "ok") { confetti(); toast("Bien joué 🎉"); }
+    if (r === "smoke") logSmoke();
+  },
+  vape() { S.vapes.push({ t: Date.now() }); save(); renderAll(); toast(`Pause vape notée ✓ (${vapesToday()} aujourd'hui)`); },
   gum() { S.gums.push({ t: Date.now() }); save(); renderAll(); toast(`Gomme notée ✓ (${gumsToday()} aujourd'hui)`); },
   patch() { const k = dayKey(Date.now()); if (S.patches[k]) delete S.patches[k]; else S.patches[k] = true; save(); renderAll(); },
-  mdone() { getMission().done = true; save(); renderAll(); toast("Mission accomplie 🎉"); },
+  mdone() { getMission().done = true; save(); renderAll(); confetti(); toast("Mission accomplie 🎉"); },
   mswap() {
     const m = getMission(), p = missionPool(), cur = p.findIndex(x => x[0] === m.id), dk = dayKey(Date.now());
     let n = (cur + 1 + hashStr(dk + "x") % 3) % p.length; if (p[n][0] === m.id) n = (n + 1) % p.length;
@@ -206,7 +269,7 @@ const ACT = {
 };
 document.addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (!b || !S) return; const f = ACT[b.dataset.act]; if (f) f(b); });
 function delEvent(k, t) {
-  const arr = { s: S.smokes, c: S.cravings, g: S.gums, y: S.symptoms }[k], i = arr ? arr.findIndex(x => x.t === t) : -1;
+  const arr = { s: S.smokes, c: S.cravings, g: S.gums, v: S.vapes, y: S.symptoms }[k], i = arr ? arr.findIndex(x => x.t === t) : -1;
   if (i >= 0) { arr.splice(i, 1); save(); renderAll(); renderStats(); toast("Supprimé"); }
 }
 
@@ -259,6 +322,8 @@ $("#sosStart").addEventListener("click", () => {
 function setSosMode(m) {
   $("#sosBreath").style.display = m === "breathe" ? "block" : "none";
   $("#sosMove").style.display = m === "move" ? "block" : "none";
+  $("#sosQuiz").style.display = m === "quiz" ? "block" : "none";
+  if (m === "quiz" && S) quizNext();
   if (m !== "breathe") stopSos(); if (m !== "move") stopWorkout();
 }
 seg($("#sosSeg"), "breathe", setSosMode); seg($("#wkSeg"), "full");
@@ -401,10 +466,10 @@ function renderStats() {
     : `<p class="muted small">Indique un déclencheur quand tu notes une cigarette pour les voir ici.</p>`;
 
   // historique
-  const ev = [...S.smokes.map(s => ({ ...s, k: "s" })), ...S.cravings.map(s => ({ ...s, k: "c" })), ...S.gums.map(s => ({ ...s, k: "g" })), ...S.symptoms.map(s => ({ ...s, k: "y" }))].sort((a, b) => b.t - a.t).slice(0, 50);
-  const label = e => e.k === "s" ? `Cigarette${e.trig ? " · " + e.trig : ""}` : e.k === "g" ? "Gomme" : e.k === "y" ? "Symptômes · " + e.list.map(l => (SYMPTOMS.find(x => x[0] === l) || [0, l])[1]).join(", ") : e.tool === "move" ? "Séance bouger" : `Envie surmontée${e.trig ? " · " + e.trig : ""}${e.int ? " · " + e.int + "/5" : ""}`;
+  const ev = [...S.smokes.map(s => ({ ...s, k: "s" })), ...S.cravings.map(s => ({ ...s, k: "c" })), ...S.gums.map(s => ({ ...s, k: "g" })), ...S.vapes.map(s => ({ ...s, k: "v" })), ...S.symptoms.map(s => ({ ...s, k: "y" }))].sort((a, b) => b.t - a.t).slice(0, 50);
+  const label = e => e.k === "s" ? `Cigarette${e.trig ? " · " + e.trig : ""}` : e.k === "g" ? "Gomme" : e.k === "v" ? "Pause vape" : e.k === "y" ? "Symptômes · " + e.list.map(l => (SYMPTOMS.find(x => x[0] === l) || [0, l])[1]).join(", ") : e.tool === "move" ? "Séance bouger" : `Envie surmontée${e.trig ? " · " + e.trig : ""}${e.int ? " · " + e.int + "/5" : ""}`;
   $("#logList").innerHTML = ev.length ? ev.map(e => { const d = new Date(e.t); return `<div class="log"><div><div>${esc(label(e))}</div><div class="small muted">${d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })} à ${pad(d.getHours())}h${pad(d.getMinutes())}</div></div>
-    <div class="row"><span class="pill ${e.k === "s" ? "ko" : e.k === "c" ? "ok" : "sk"}">${e.k === "s" ? "Fumée" : e.k === "c" ? "Tenu" : e.k === "g" ? "Substitut" : "Manque"}</span><button class="x" data-act="del" data-k="${e.k}" data-t="${e.t}" aria-label="Supprimer">✕</button></div></div>`; }).join("") : `<p class="muted small">Rien pour l'instant.</p>`;
+    <div class="row"><span class="pill ${e.k === "s" ? "ko" : e.k === "c" ? "ok" : "sk"}">${e.k === "s" ? "Fumée" : e.k === "c" ? "Tenu" : e.k === "g" || e.k === "v" ? "Substitut" : "Manque"}</span><button class="x" data-act="del" data-k="${e.k}" data-t="${e.t}" aria-label="Supprimer">✕</button></div></div>`; }).join("") : `<p class="muted small">Rien pour l'instant.</p>`;
 }
 
 /* ---------- badges ---------- */
@@ -422,8 +487,9 @@ function showBadge() {
   const more = badgeQueue.length - 1; badgeQueue = [];
   $("#bmE").textContent = b.e; $("#bmN").textContent = b.n; $("#bmD").textContent = b.d;
   $("#bmMore").textContent = more > 0 ? `+ ${more} autre${more > 1 ? "s" : ""} badge${more > 1 ? "s" : ""} débloqué${more > 1 ? "s" : ""}` : "";
-  $("#badgeModal").classList.add("on");
+  $("#badgeModal").classList.add("on"); confetti();
 }
+function showBadgeFx() { confetti(); }
 $("#bmOk").onclick = () => { $("#badgeModal").classList.remove("on"); if ($("#v-badges").classList.contains("on")) renderBadges(); };
 function renderBadges() {
   const got = BADGES.filter(b => S.badges[b.id]).length;
@@ -450,7 +516,7 @@ function switchToQuit(fromLaunch) {
 }
 $("#setToQuit").onclick = () => switchToQuit(false);
 $("#setToReduce").onclick = () => { S.mode = "reduce"; S.quitAt = null; S.quitFrom = null; save(); $("#setModal").classList.remove("on"); renderAll(); go("home"); toast("Retour en mode réduction. On avance à ton rythme."); };
-function subFields() { const on = $$("#e-subs .chip.on").map(c => c.dataset.v); $("#e-patchBox").style.display = on.includes("patch") ? "block" : "none"; $("#e-gumBox").style.display = on.includes("gum") ? "block" : "none"; }
+function subFields() { const on0 = $$("#e-subs .chip.on").map(c => c.dataset.v); $("#e-vapeBox").style.display = on0.includes("vape") ? "block" : "none"; const on = $$("#e-subs .chip.on").map(c => c.dataset.v); $("#e-patchBox").style.display = on.includes("patch") ? "block" : "none"; $("#e-gumBox").style.display = on.includes("gum") ? "block" : "none"; }
 function openSettings() {
   const sb = S.subs, q = S.mode === "quit";
   $("#e-day").value = S.baseline; $("#e-price").value = S.packPrice; $("#e-pack").value = S.perPack;
@@ -462,6 +528,7 @@ function openSettings() {
   $$("#e-subs .chip").forEach(c => { c.classList.toggle("on", !!sb[c.dataset.v]); c.onclick = () => { c.classList.toggle("on"); subFields(); }; });
   $("#e-patchMg").value = sb.patchMg; $("#e-patchPrice").value = sb.patchPrice || ""; $("#e-patchPer").value = sb.patchPer || 7;
   $("#e-gumMg").value = sb.gumMg; $("#e-gumPrice").value = sb.gumPrice || ""; $("#e-gumPer").value = sb.gumPer || 30;
+  $("#e-vapeNic").value = sb.vapeNic; $("#e-vapePrice").value = sb.vapePrice || ""; $("#e-vapeDays").value = sb.vapeDays || 7;
   subFields();
   $("#setToQuit").style.display = q ? "none" : "block"; $("#setToReduce").style.display = q ? "block" : "none";
   $("#resetConfirm").style.display = "none"; $("#setModal").classList.add("on");
@@ -473,7 +540,7 @@ $("#setForm").addEventListener("submit", e => {
   e.preventDefault();
   const on = $$("#e-subs .chip.on").map(c => c.dataset.v);
   Object.assign(S, { baseline: +$("#e-day").value, pace: +$("#e-pace").dataset.val, packPrice: +$("#e-price").value, perPack: +$("#e-pack").value, goal: $("#e-goal").value.trim(), goalPrice: +$("#e-goalp").value || 0 });
-  Object.assign(S.subs, { patch: on.includes("patch"), gum: on.includes("gum"), patchMg: num("#e-patchMg"), patchPrice: +$("#e-patchPrice").value || 0, patchPer: +$("#e-patchPer").value || 7, gumMg: num("#e-gumMg"), gumPrice: +$("#e-gumPrice").value || 0, gumPer: +$("#e-gumPer").value || 30 });
+  Object.assign(S.subs, { vape: on.includes("vape"), vapeNic: num("#e-vapeNic"), vapePrice: +$("#e-vapePrice").value || 0, vapeDays: +$("#e-vapeDays").value || 7, patch: on.includes("patch"), gum: on.includes("gum"), patchMg: num("#e-patchMg"), patchPrice: +$("#e-patchPrice").value || 0, patchPer: +$("#e-patchPer").value || 7, gumMg: num("#e-gumMg"), gumPrice: +$("#e-gumPrice").value || 0, gumPer: +$("#e-gumPer").value || 30 });
   if (S.mode === "reduce") { const dd = $("#e-dday").value; S.dDay = dd ? dayStart(new Date(dd + "T12:00").getTime()) : null; }
   else { const t = new Date($("#e-date").value).getTime(); if (t) { S.quitAt = t; S.quitFrom = quitFromFor(S); } }
   save(); renderAll(); $("#setModal").classList.remove("on"); toast("Enregistré");

@@ -63,6 +63,12 @@ nav button.sos{color:var(--coral)}
 .chip.on{background:var(--green);border-color:var(--green);color:var(--on-green)}
 .seg{display:grid;gap:8px}
 .seg.two{grid-template-columns:1fr 1fr}
+.seg.three{grid-template-columns:1fr 1fr 1fr}.seg.three button{text-align:center;padding:10px 4px;font-size:.88rem}
+.conf{position:fixed;top:-12px;width:9px;height:14px;border-radius:2px;z-index:40;pointer-events:none;animation:fall 1.6s ease-in forwards}
+@keyframes fall{to{transform:translate(var(--dx),105vh) rotate(var(--r));opacity:.9}}
+.pop{animation:pop .5s ease}
+@keyframes pop{40%{transform:scale(1.06)}}
+@media (prefers-reduced-motion:reduce){.conf{display:none}.pop{animation:none}}
 .seg button{text-align:left;background:var(--bg);border:1px solid var(--line);font-weight:500}
 .seg.two button{text-align:center}
 .seg button.on{border-color:var(--green);background:var(--green-soft)}
@@ -156,6 +162,7 @@ details summary{cursor:pointer;font-weight:600;padding:10px 0}
         <div class="chips" id="s-subs">
           <button type="button" class="chip on" data-v="patch">Patchs</button>
           <button type="button" class="chip on" data-v="gum">Gommes à mâcher</button>
+          <button type="button" class="chip" data-v="vape">Cigarette électronique</button>
         </div>
         <label for="s-why">Ta première raison d'arrêter</label>
         <input id="s-why" type="text" placeholder="Ex. : courir sans être essoufflé">
@@ -171,6 +178,7 @@ details summary{cursor:pointer;font-weight:600;padding:10px 0}
       <button class="btn-ghost" id="openSettings" aria-label="Réglages">⚙︎</button>
     </div>
     <div class="card hero" id="hero"></div>
+    <div class="card" id="ciCard"></div>
     <div class="grid mb" id="actReduce">
       <button class="btn-ghost btn-big" id="smokeBtn">🚬 J'en fume une</button>
       <button class="btn-sos btn-big" data-go="sos">J'ai envie — SOS</button>
@@ -185,6 +193,7 @@ details summary{cursor:pointer;font-weight:600;padding:10px 0}
     <div class="card mission" id="mission"></div>
     <div class="card" id="evening"></div>
     <div class="card enc" id="enc"></div>
+    <div class="card" id="anec"></div>
     <div class="grid">
       <div class="card stat"><div class="v" id="h-money">0 €</div><div class="l" id="h-money-l">économisés</div></div>
       <div class="card stat"><div class="v" id="h-cigs">0</div><div class="l">cigarettes évitées</div></div>
@@ -212,9 +221,17 @@ details summary{cursor:pointer;font-weight:600;padding:10px 0}
   <section id="v-sos" class="view">
     <h1>Respire. Ça va passer.</h1>
     <p class="muted" style="margin-top:6px">Une envie dure en général 3 à 5 minutes. Choisis comment la traverser.</p>
-    <div class="seg two" id="sosSeg" style="margin-top:14px">
-      <button type="button" data-v="breathe" class="on">🌬️ Respirer 3 min</button>
-      <button type="button" data-v="move">🏃 Bouger 7 min</button>
+    <div class="seg three" id="sosSeg" style="margin-top:14px">
+      <button type="button" data-v="breathe" class="on">🌬️ Respirer</button>
+      <button type="button" data-v="move">🏃 Bouger</button>
+      <button type="button" data-v="quiz">🎲 Quiz</button>
+    </div>
+    <div class="card" id="sosQuiz" style="display:none;margin-top:12px">
+      <div class="small muted" id="qzCount"></div>
+      <div class="serif" style="font-size:1.15rem;margin:6px 0 10px" id="qzQ"></div>
+      <div class="seg" id="qzOpts"></div>
+      <div id="qzRes" class="small" style="margin-top:10px"></div>
+      <button class="btn-primary btn-block" id="qzNext" style="margin-top:10px;display:none">Question suivante</button>
     </div>
 
     <div class="card" id="sosBreath" style="margin-top:12px">
@@ -374,6 +391,15 @@ details summary{cursor:pointer;font-weight:600;padding:10px 0}
     <div class="chips" id="e-subs">
       <button type="button" class="chip" data-v="patch">Patchs</button>
       <button type="button" class="chip" data-v="gum">Gommes à mâcher</button>
+      <button type="button" class="chip" data-v="vape">Cigarette électronique</button>
+    </div>
+    <div id="e-vapeBox">
+      <label for="e-vapeNic">Cigarette électronique : nicotine du liquide (mg/ml, 0 si sans nicotine)</label>
+      <input id="e-vapeNic" type="number" min="0" step="1" placeholder="0">
+      <div class="grid">
+        <div><label for="e-vapePrice">Prix du flacon (€)</label><input id="e-vapePrice" type="number" min="0" step="0.1"></div>
+        <div><label for="e-vapeDays">Dure environ (jours)</label><input id="e-vapeDays" type="number" min="1"></div>
+      </div>
     </div>
     <div id="e-patchBox">
       <label for="e-patchMg">Patch : mg indiqués sur la boîte</label>

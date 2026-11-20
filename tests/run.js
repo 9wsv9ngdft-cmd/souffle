@@ -107,6 +107,53 @@ const ok = (c, msg) => { console.log((c ? "✓ " : "✗ ") + msg); if (!c) fails
   await shot("06-conseils");
   await page.click("#symOk");
 
+  // 7b. cigarette électronique + pause fun
+  await page.click("nav [data-go=home]");
+  await page.click("#openSettings");
+  await page.click("#e-subs .chip[data-v=vape]");
+  ok(await page.isVisible("#e-vapeBox"), "réglages : champs vape visibles");
+  await page.fill("#e-vapeNic", "6"); await page.fill("#e-vapePrice", "7"); await page.fill("#e-vapeDays", "7");
+  await page.click("#setForm button[type=submit]");
+  ok((await E("$('#subsCard').textContent")).includes("avec nicotine (6 mg/ml)"), "carte vape avec nicotine");
+  await page.click("[data-act=vape]"); await page.click("[data-act=vape]");
+  ok((await E("vapesToday()")) === 2, "2 pauses vape notées");
+  ok((await E("$('#subsCard').textContent")).includes("ne conseille aucun dosage"), "mention : aucun dosage conseillé");
+  await page.click("#openSettings"); await page.fill("#e-vapeNic", "0"); await page.click("#setForm button[type=submit]");
+  ok((await E("$('#subsCard').textContent")).includes("sans nicotine"), "vape sans nicotine");
+  ok((await E("$('#anec').textContent")).includes("le savais-tu"), "anecdote du jour affichée");
+  const a1 = await E("$('#anec div:nth-child(2)').textContent"); await page.click("#anecNext");
+  ok((await E("$('#anec div:nth-child(2)').textContent")) !== a1, "« Une autre » change l'anecdote");
+  await page.click("nav [data-go=sos]"); await page.click("#sosSeg [data-v=quiz]");
+  ok(await page.isVisible("#sosQuiz"), "quiz affiché dans SOS");
+  for (let i = 0; i < 5; i++) {
+    const good = await E("(()=>{const q=QUIZ.find(x=>x[0]===$('#qzQ').textContent);return q[2]})()");
+    await page.click(`#qzOpts button[data-i='${good}']`);
+    if (i < 4) await page.click("#qzNext");
+  }
+  ok((await E("S.fun.ok")) === 5, "5 bonnes réponses comptées");
+  ok(await E("!!S.badges.fq5"), "badge Curieux·se");
+  ok((await E("document.querySelectorAll('.conf').length")) > 0, "confettis lancés");
+  await shot("07b-quiz");
+  await page.click("#bmOk");
+  // 7c. petit point
+  await page.click("nav [data-go=home]");
+  ok((await E("$('#ciCard').textContent")).includes("ça s'est passé comment"), "carte « petit point » affichée");
+  await page.click("[data-act=ci][data-r=ok]");
+  ok((await E("S.ci.length")) === 1, "petit point enregistré");
+  ok(!(await E("$('#ciCard').textContent")).includes("comment ?"), "conseil affiché après réponse");
+  await E("(S.ci[0].t -= 2*3600000, renderAll())");
+  const v0 = await E("S.vapes.length");
+  await page.click("[data-act=ci][data-r=sub]");
+  ok((await E("S.vapes.length")) === v0 + 1, "« gomme ou vape » note une vape (vape activée)");
+  await E("(S.ci[S.ci.length-1].t -= 2*3600000, renderAll())");
+  await page.click("[data-act=ci][data-r=smoke]");
+  ok(await page.isVisible("#smokeModal.on"), "« j'ai craqué » ouvre la saisie de cigarette");
+  await page.click("#smokeSkip");
+  await E("(S.ci.forEach(x=>{x.r='smoke';x.t=Date.now()-3600000*3}),S.ci.push(...Array(4).fill(0).map(()=>({t:Date.now()-3600000*4,r:'smoke',adv:'x'}))),S.ci[S.ci.length-1].t=Date.now(),renderAll())");
+  ok((await E("$('#ciCard').textContent")).includes("pharmacien"), "rythme : beaucoup d'écarts → soutien et pharmacien");
+  await E("(S.ci.forEach(x=>x.r='ok'),renderAll())");
+  ok((await E("$('#ciCard').textContent")).includes("espacer"), "rythme : tout va bien → espacer les rappels");
+  await shot("07c-point");
   // 8. stats / badges / infos
   await page.click("nav [data-go=stats]");
   ok((await E("$('#chartDays').innerHTML")).includes("<rect"), "graphique 14 jours dessiné");
@@ -115,7 +162,7 @@ const ok = (c, msg) => { console.log((c ? "✓ " : "✗ ") + msg); if (!c) fails
   await shot("07-stats");
   await page.click("nav [data-go=badges]");
   const bc = await E("$('#badgeCount').textContent");
-  ok(/sur 49/.test(bc), "badges : " + bc);
+  ok(/sur 51/.test(bc), "badges : " + bc);
   await shot("08-badges");
   await page.click("nav [data-go=infos]");
   ok((await E("$('#infos').textContent")).includes("Ta montre"), "infos : conseil Apple Watch");

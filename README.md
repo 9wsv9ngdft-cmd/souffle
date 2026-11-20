@@ -7,10 +7,12 @@ Le détail des fonctions est dans [`cahier-des-charges.md`](cahier-des-charges.m
 ## Fonctions
 
 - Mode **réduction** (objectif quotidien qui baisse) ou **arrêt total** (compteur depuis la dernière cigarette)
-- Suivi des **substituts** : patchs et gommes
+- Suivi des **substituts** : patchs, gommes et cigarette électronique
 - **SOS** envie : respiration 3 min, séance « bouger » 7 min ou 3 min
 - **Mission du jour**, préparation du **jour J**, **symptômes de manque** avec conseils
-- Stats, 49 badges, étapes santé, mode sombre
+- **Petit point** régulier avec conseil et rythme adaptatif
+- **Pause fun** : anecdotes, quiz, confettis (lien `#quiz`)
+- Stats, 51 badges, étapes santé, mode sombre
 
 ## Structure
 

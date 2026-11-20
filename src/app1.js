@@ -40,11 +40,50 @@ const TIPS = [
   "🖐️ Occupe tes mains : stylo, balle anti-stress, vaisselle.",
   "🧠 Rappelle-toi : l'envie va passer, que tu fumes ou non."
 ];
+const ANEC = [
+  "La nicotine atteint ton cerveau en une dizaine de secondes. Ton envie, elle, dure 3 à 5 minutes : tu as le temps de gagner.",
+  "20 minutes après la dernière cigarette, ton rythme cardiaque commence déjà à redescendre.",
+  "Après 24 à 48 h sans fumer, le monoxyde de carbone a quitté ton sang : ton cœur respire mieux.",
+  "Le goût et l'odorat reviennent en quelques jours. Les premiers repas deviennent un festival.",
+  "Une cigarette contient des milliers de composés chimiques, dont environ 70 sont cancérigènes.",
+  "Un an après l'arrêt, le risque d'infarctus est à peu près divisé par deux.",
+  "La plupart des anciens fumeurs ont essayé plusieurs fois avant d'y arriver. Chaque essai t'apprend quelque chose.",
+  "Bouger seulement 5 à 10 minutes suffit souvent à faire baisser une envie.",
+  "Les poumons se nettoient peu à peu : la toux du début est souvent bon signe, c'est le ménage qui commence.",
+  "À 13 € le paquet de 20, chaque cigarette non fumée, c'est 65 centimes qui restent dans ta poche.",
+  "Une envie, c'est une vague : tu peux la regarder monter et redescendre sans la suivre.",
+  "Boire un grand verre d'eau lentement occupe la bouche, les mains et la tête. Simple, et ça marche.",
+  "Le cerveau s'habitue vite aux nouveaux rituels : 2 à 3 semaines suffisent pour que le café sans clope devienne normal.",
+  "Chaque envie surmontée affaiblit un peu la suivante.",
+  "Ton corps commence à se réparer dès les premières heures. Tu n'as rien à attendre pour que ça serve."
+];
+const QUIZ = [
+  ["Combien de temps dure en général une envie de fumer ?", ["3 à 5 minutes", "1 heure", "Toute la journée"], 0, "Une envie monte, atteint un pic puis redescend en quelques minutes, que tu fumes ou non."],
+  ["Quel est le numéro de Tabac Info Service ?", ["15", "39 89", "3631"], 1, "Le 39 89 est gratuit : des tabacologues t'y répondent."],
+  ["Combien de temps après l'arrêt le monoxyde de carbone quitte-t-il le sang ?", ["24 à 48 heures", "Un mois", "Un an"], 0, "En un à deux jours, ton sang transporte de nouveau bien l'oxygène."],
+  ["Un an après l'arrêt, le risque d'infarctus est…", ["inchangé", "à peu près divisé par deux", "multiplié par deux"], 1, "Les bénéfices sur le cœur arrivent très vite, bien avant les 10 ans."],
+  ["Rechuter une fois, c'est…", ["la preuve que tu n'y arriveras pas", "très fréquent et ça fait partie du chemin", "interdit"], 1, "Beaucoup d'ex-fumeurs ont eu plusieurs essais avant le bon. On repart, c'est tout."],
+  ["Combien de temps la nicotine met-elle à atteindre le cerveau ?", ["10 secondes environ", "10 minutes", "1 heure"], 0, "C'est ce qui rend la cigarette si addictive. Les substituts agissent beaucoup plus doucement."],
+  ["À 13 € le paquet de 20, 10 cigarettes par jour coûtent environ…", ["600 € par an", "2 400 € par an", "10 000 € par an"], 1, "10 × 0,65 € × 365 jours ≈ 2 370 € par an."],
+  ["Pour calmer une envie, quoi marche bien ?", ["Bouger 5 à 10 minutes", "Rester immobile à y penser", "Boire un café en fumant"], 0, "Une courte activité physique fait baisser l'envie. Tu as une séance de 7 minutes dans l'onglet SOS."],
+  ["Que deviennent le goût et l'odorat après l'arrêt ?", ["Ils reviennent en quelques jours", "Rien ne change", "Ils disparaissent"], 0, "Les papilles et les capteurs de l'odorat se remettent vite."],
+  ["Les symptômes de manque sont en général les plus forts…", ["la première semaine", "au bout d'un an", "jamais"], 0, "Puis ça s'atténue. Si ça ne passe pas, parles-en à ton pharmacien ou au 39 89."],
+  ["Une envie qu'on laisse passer…", ["revient toujours plus fort", "tend à être suivie d'envies plus espacées", "ne change rien"], 1, "Chaque vague surmontée affaiblit la suivante."],
+  ["Qui peut t'aider à choisir un dosage de substituts ?", ["Une appli", "Ton médecin ou ton pharmacien", "Un ami"], 1, "Souffle ne conseille jamais de dosage. Ton médecin, ton pharmacien ou le 39 89 le feront bien mieux."]
+];
+const ADV = {
+  ok: ["Bravo, c'est exactement ça. 🎉 Garde la lancée : un verre d'eau, et on enchaîne.", "Super ! Chaque heure tenue compte. Tu peux t'offrir 30 secondes de quiz pour fêter ça.", "Tu gères. Cette réussite, note-la dans ta tête : elle servira à la prochaine envie."],
+  sub: ["Bien joué : tu as remplacé au lieu de fumer, c'est le but d'un relais. 👍", "Un relais, ça compte. Essaie de boire de l'eau ensuite pour occuper la bouche.", "Parfait : ça fait partie du jeu. Reste à l'écoute de ton envie, pas besoin d'en faire plus."],
+  smoke: ["Ce n'est pas un échec, c'est une info. 💛 Qu'est-ce qui l'a déclenchée ? Plus tu le sais, plus tu anticipes.", "Ça arrive à tout le monde. Respire 3 minutes, bois de l'eau, et repars de zéro sur la prochaine heure.", "Un écart ne remet rien à zéro. On note, on respire, on repart."]
+};
+const VERSION = "3.2 · 20 novembre 2026";
 const INFOS = [
   ["Une envie, c'est une vague", "Elle monte, atteint un pic, puis redescend en quelques minutes, même si tu ne fumes pas. Plus tu en laisses passer, plus elles s'espacent."],
   ["Commence par les cigarettes automatiques", "Café, voiture, sortie du travail… Celles que tu fumes par habitude sont souvent les plus faciles à supprimer en premier. Regarde tes déclencheurs dans Stats."],
   ["Attention à la compensation", "En réduisant, on a tendance à tirer plus fort ou à fumer jusqu'au filtre. Essaie de garder ta façon de fumer habituelle."],
   ["Réduire, c'est une étape", "Même quelques cigarettes par jour gardent un risque cardiovasculaire nettement plus élevé que zéro. La réduction est un excellent tremplin vers l'arrêt complet."],
+  ["Souffle sur ton écran d'accueil", "Ouvre le lien de Souffle dans Safari, puis Partager → Sur l'écran d'accueil. L'icône ouvre toujours la dernière version : pas d'App Store, pas de mise à jour à faire. Si tu ne vois pas une nouveauté, ferme l'appli et rouvre-la. Tes données restent enregistrées dans ton compte. Version actuelle : " + VERSION + "."],
+  ["Et la cigarette électronique ?", "Elle peut t'aider à remplacer des cigarettes et à occuper tes mains, avec ou sans nicotine. Elle n'est pas sans risque, c'est un outil de transition : l'objectif reste de réduire jusqu'à zéro. Avec nicotine, le dosage se choisit avec ton médecin ou ton pharmacien, pas avec une appli."],
   ["Bien utiliser les patchs et les gommes", "Ils calment le manque et aident à réduire comme à arrêter. Ils peuvent être pris en charge sur prescription. Un dosage inadapté est une cause fréquente de manque qui persiste : ajuste-le avec ton médecin ou ton pharmacien, jamais seul·e."],
   ["Ta montre peut t'aider", "Sur ton Apple Watch, l'app Pleine conscience propose Respirer et Réflexion (1 à 5 min). Dans l'app Watch de ton iPhone : Ma montre → Pleine conscience, tu règles ses rappels sur tes heures à risque."],
   ["Change ton décor", "Fumer moins, c'est aussi casser les rituels : change de place pour le café, garde le paquet hors de portée, ne rachète pas de briquet."],
@@ -95,8 +134,8 @@ function defaults() {
   return {
     v: 3, mode: "reduce", start: Date.now(), baseline: 15, pace: 3, packPrice: 13, perPack: 20,
     quitAt: null, quitFrom: null, dDay: null, launched: false,
-    smokes: [], cravings: [], gums: [], patches: {}, symptoms: [], missions: {}, workouts: [], check: {},
-    subs: { patch: false, gum: false, patchMg: "", gumMg: "", patchPrice: 0, patchPer: 7, gumPrice: 0, gumPer: 30 },
+    smokes: [], cravings: [], gums: [], vapes: [], ci: [], fun: { quiz: 0, ok: 0, anec: 0 }, patches: {}, symptoms: [], missions: {}, workouts: [], check: {},
+    subs: { patch: false, gum: false, vape: false, vapeNic: "", vapePrice: 0, vapeDays: 7, patchMg: "", gumMg: "", patchPrice: 0, patchPer: 7, gumPrice: 0, gumPer: 30 },
     reasons: [], goal: "", goalPrice: 0, badges: {}, updatedAt: Date.now()
   };
 }
@@ -107,7 +146,7 @@ function quitFromFor(s) {
 function migrate(s) {
   if (!s) return null;
   const d = defaults();
-  if (s.v >= 3) return Object.assign(d, s, { subs: Object.assign(d.subs, s.subs || {}) });
+  if (s.v >= 3) return Object.assign(d, s, { subs: Object.assign(d.subs, s.subs || {}), fun: Object.assign(d.fun, s.fun || {}) });
   if (s.v === 2) { const m = Object.assign(d, s, { v: 3 }); if (m.mode === "quit" && m.quitAt && m.quitFrom == null) m.quitFrom = quitFromFor(m); return m; }
   // v1 : ancienne version « arrêt seul »
   const log = s.log || [];
@@ -172,6 +211,7 @@ function savings() {
   const gross = avoided * S.packPrice / S.perPack;
   let cost = 0;
   if (sb.gum && sb.gumPrice > 0) cost += S.gums.filter(g => g.t >= S.start).length * sb.gumPrice / (sb.gumPer || 1);
+  if (sb.vape && sb.vapePrice > 0) cost += Math.floor(days) * sb.vapePrice / (sb.vapeDays || 7);
   if (sb.patch && sb.patchPrice > 0) cost += Object.keys(S.patches).length * sb.patchPrice / (sb.patchPer || 1);
   return { avoided, gross, cost, money: Math.max(0, gross - cost) };
 }
@@ -191,6 +231,7 @@ function dayStats() {
   }
   return { c, today, okDays, streak, bestStreak, minRatio, best };
 }
+const vapesToday = () => { const t = dayIdx(Date.now()); return S.vapes.filter(g => dayIdx(g.t) === t).length; };
 const gumsToday = () => { const t = dayIdx(Date.now()); return S.gums.filter(g => dayIdx(g.t) === t).length; };
 function gumRising() {
   const today = dayIdx(Date.now()); if (today < 3) return false;
@@ -245,7 +286,7 @@ function symAlerts() {
   if (mor(0) && mor(1) && mor(2)) out.push("Ton moral est en baisse depuis 3 jours. Pense à en parler à ton médecin.");
   return out;
 }
-function relayDay() { const c = tally(S.smokes), g = tally(S.gums), t = dayIdx(Date.now()); for (let i = 0; i <= t; i++) if ((g[i] || 0) > 0 && (g[i] || 0) > (c[i] || 0)) return true; return false; }
+function relayDay() { const c = tally(S.smokes), g = tally(S.gums.concat(S.vapes)), t = dayIdx(Date.now()); for (let i = 0; i <= t; i++) if ((g[i] || 0) > 0 && (g[i] || 0) > (c[i] || 0)) return true; return false; }
 
 /* ---------- badges ---------- */
 const B = (id, e, n, d, cat, fn) => ({ id, e, n, d, cat, fn });
@@ -298,6 +339,8 @@ const BADGES = [
   B("dd_check", "☑️", "Prêt·e", "Checklist du jour J complète", "Jour J", c => c.check),
   B("dd_go", "🚀", "Jour J", "Lancer l'arrêt le jour J", "Jour J", c => c.launched),
   B("quit", "🚭", "Le grand saut", "Passer à l'arrêt total", "Jour J", c => c.quit),
+  B("fq5", "🎯", "Curieux·se", "5 bonnes réponses au quiz", "Fun", c => c.fq >= 5),
+  B("fq15", "🧠", "Pro du quiz", "15 bonnes réponses au quiz", "Fun", c => c.fq >= 15),
   B("better", "🌤️", "Ça va mieux", "Symptômes de manque en baisse sur 7 jours", "Santé", c => c.symBetter)
 ];
 function badgeCtx() {
@@ -305,7 +348,7 @@ function badgeCtx() {
   return {
     smokes: S.smokes.length, okDays: ds.okDays, bestStreak: ds.bestStreak, minRatio: ds.today > 0 ? ds.minRatio : 1,
     crav: S.cravings.length, money: sv.money, avoided: sv.avoided, free: freeSec(), quit: S.mode === "quit",
-    subs: S.gums.length + Object.keys(S.patches).length, relay: relayDay(), wk: S.workouts.length,
+    subs: S.gums.length + S.vapes.length + Object.keys(S.patches).length, fq: S.fun.ok, relay: relayDay(), wk: S.workouts.length,
     msDone: ms.done, msStreak: ms.streak, dDate: !!S.dDay, check: CHECK.every(c => S.check[c[0]]), launched: S.launched,
     symBetter: symBetter(), goalDone: !!(S.goal && S.goalPrice > 0 && sv.money >= S.goalPrice), reasons: S.reasons.length
   };
