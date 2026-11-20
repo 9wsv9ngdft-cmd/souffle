@@ -164,7 +164,7 @@ function migrate(s) {
 let userDoc = null, saveT = null, saving = false, pending = false;
 function loadLocal() { try { const r = localStorage.getItem(KEY); return r ? migrate(JSON.parse(r)) : null; } catch (e) { return null; } }
 function saveLocal() { try { S ? localStorage.setItem(KEY, JSON.stringify(S)) : localStorage.removeItem(KEY); } catch (e) {} }
-function save() { if (S) S.updatedAt = Date.now(); saveLocal(); clearTimeout(saveT); saveT = setTimeout(pushRemote, 600); }
+function save() { if (S) S.updatedAt = Date.now(); saveLocal(); clearTimeout(saveT); saveT = setTimeout(pushRemote, 600); try { typeof pushSoon === "function" && pushSoon(); } catch (e) {} }
 async function pushRemote() {
   if (!userDoc) return;
   if (saving) { pending = true; return; }

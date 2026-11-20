@@ -154,6 +154,11 @@ const ok = (c, msg) => { console.log((c ? "✓ " : "✗ ") + msg); if (!c) fails
   await E("(S.ci.forEach(x=>x.r='ok'),renderAll())");
   ok((await E("$('#ciCard').textContent")).includes("espacer"), "rythme : tout va bien → espacer les rappels");
   await shot("07c-point");
+  // 7d. rappels sur le téléphone
+  await page.click("nav [data-go=home]"); await page.click("#openSettings");
+  ok((await E("$('#pushMsg').textContent")).includes("github.io"), "réglages : rappels → renvoie vers la version installable (hors GitHub Pages)");
+  ok(!(await page.isVisible("#pushCtl")), "boutons de rappels cachés hors GitHub Pages");
+  await page.click("#setCancel");
   // 8. stats / badges / infos
   await page.click("nav [data-go=stats]");
   ok((await E("$('#chartDays').innerHTML")).includes("<rect"), "graphique 14 jours dessiné");

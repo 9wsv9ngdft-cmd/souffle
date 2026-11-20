@@ -38,3 +38,11 @@ Pour modifier l'app, change `src/*`, relance `python3 build.py`, puis republie `
 ## Avertissement
 
 Souffle est un outil d'accompagnement, pas un avis médical. Il ne conseille aucun dosage de substituts nicotiniques. Pour de l'aide : Tabac Info Service, **39 89** (appel gratuit).
+
+## Rappels sur le téléphone (une seule fois à installer)
+1. Site : GitHub Pages, branche `main`, dossier racine (déjà fait).
+2. Cloudflare › Workers & Pages › Create › **Import a repository** › `souffle`, dossier racine **`worker`**. Nom : `souffle-notifs`. Le programme, la base (KV) et le cron se créent tout seuls.
+3. Vérifier que l'adresse est `https://souffle-notifs.<ton-compte>.workers.dev` (sinon changer `PUSH_API` dans `src/app2.js`).
+4. iPhone : ouvrir le site dans Safari › Partager › Sur l'écran d'accueil › ouvrir depuis l'icône › Réglages › Rappels › Activer › Tester.
+
+Après chaque changement : `python3 build.py`, tests (`tests/run.js`, `tests/worker.test.mjs`), commit, push.

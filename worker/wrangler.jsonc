@@ -1,0 +1,12 @@
+// Réglages du programme Cloudflare « souffle-notifs », installé automatiquement depuis GitHub
+// (Cloudflare › Workers & Pages › Create › Import a repository › souffle, dossier racine « worker »).
+{
+  "name": "souffle-notifs",
+  "main": "souffle-notifs.js",
+  "compatibility_date": "2026-11-01",
+  // base de données créée toute seule au premier déploiement
+  "kv_namespaces": [{ "binding": "SOUFFLE" }],
+  // réveil toutes les 15 minutes pour envoyer les rappels
+  "triggers": { "crons": ["*/15 * * * *"] },
+  "observability": { "enabled": true }
+}

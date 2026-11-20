@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Souffle — j'arrête de fumer</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#2f7a5b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Souffle">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -423,6 +428,20 @@ details summary{cursor:pointer;font-weight:600;padding:10px 0}
     <input id="e-goal" type="text" placeholder="Ex. : un week-end à la mer">
     <label for="e-goalp">Prix de l'objectif (€)</label>
     <input id="e-goalp" type="number" min="0" step="1">
+    <label>Rappels sur le téléphone</label>
+    <div id="pushBox" class="card" style="margin:6px 0 0">
+      <div class="small" id="pushMsg"></div>
+      <div id="pushCtl" style="display:none">
+        <div class="seg" id="pushLevel" style="grid-template-columns:repeat(4,1fr);margin-top:10px">
+          <button type="button" data-v="auto" class="on">Auto</button>
+          <button type="button" data-v="calm">Discret</button>
+          <button type="button" data-v="normal">Normal</button>
+          <button type="button" data-v="more">Soutien</button>
+        </div>
+        <p class="small muted" id="pushLvlTxt" style="margin-top:8px"></p>
+        <div class="grid" style="margin-top:8px"><button type="button" class="btn-primary" id="pushToggle">Activer</button><button type="button" class="btn-ghost" id="pushTest">Tester</button></div>
+      </div>
+    </div>
     <div class="grid" style="margin-top:18px">
       <button type="button" class="btn-ghost" id="setCancel">Fermer</button>
       <button type="submit" class="btn-primary">Enregistrer</button>
@@ -606,7 +625,7 @@ function migrate(s) {
 let userDoc = null, saveT = null, saving = false, pending = false;
 function loadLocal() { try { const r = localStorage.getItem(KEY); return r ? migrate(JSON.parse(r)) : null; } catch (e) { return null; } }
 function saveLocal() { try { S ? localStorage.setItem(KEY, JSON.stringify(S)) : localStorage.removeItem(KEY); } catch (e) {} }
-function save() { if (S) S.updatedAt = Date.now(); saveLocal(); clearTimeout(saveT); saveT = setTimeout(pushRemote, 600); }
+function save() { if (S) S.updatedAt = Date.now(); saveLocal(); clearTimeout(saveT); saveT = setTimeout(pushRemote, 600); try { typeof pushSoon === "function" && pushSoon(); } catch (e) {} }
 async function pushRemote() {
   if (!userDoc) return;
   if (saving) { pending = true; return; }
@@ -953,11 +972,15 @@ function renderEnc() {
   if (ds.streak >= 2) lines.push(`🔥 ${ds.streak} jours de suite dans l'objectif.`);
   $("#enc").innerHTML = `<div class="small muted">Message du jour</div><div class="q">${ENC[Math.floor(now / DAY) % ENC.length]}</div>${lines.map(l => `<div class="small" style="margin-top:8px">${l}</div>`).join("")}`;
 }
-function ciRhythm() { // sur les 3 derniers jours, d'après les points « depuis tout à l'heure »
+function ciLevel() { // sur les 3 derniers jours, d'après les points « depuis tout à l'heure »
   const l = S.ci.filter(x => x.t > Date.now() - 3 * DAY); if (l.length < 6) return "";
   const sm = l.filter(x => x.r === "smoke").length / l.length, ok = l.filter(x => x.r === "ok").length / l.length;
-  if (sm >= .4) return "Ces derniers jours, ça craque assez souvent. Si tu veux plus de soutien, ajoute un rappel. Et si ça dure, parles-en à ton pharmacien ou au 39 89.";
-  if (ok >= .8) return "Ça va très bien en ce moment ! Tu peux espacer tes rappels si tu veux te faire plus discret.";
+  return sm >= .4 ? "more" : ok >= .8 ? "less" : "";
+}
+function ciRhythm() {
+  const lv = ciLevel();
+  if (lv === "more") return "Ces derniers jours, ça craque assez souvent. Si tu veux plus de soutien, ajoute un rappel. Et si ça dure, parles-en à ton pharmacien ou au 39 89.";
+  if (lv === "less") return "Ça va très bien en ce moment ! Tu peux espacer tes rappels si tu veux te faire plus discret.";
   return "";
 }
 function renderCi() {
@@ -1270,6 +1293,60 @@ function renderStats() {
     <div class="row"><span class="pill ${e.k === "s" ? "ko" : e.k === "c" ? "ok" : "sk"}">${e.k === "s" ? "Fumée" : e.k === "c" ? "Tenu" : e.k === "g" || e.k === "v" ? "Substitut" : "Manque"}</span><button class="x" data-act="del" data-k="${e.k}" data-t="${e.t}" aria-label="Supprimer">✕</button></div></div>`; }).join("") : `<p class="muted small">Rien pour l'instant.</p>`;
 }
 
+/* ---------- rappels sur le téléphone (notifications) ---------- */
+const PUSH_API = "https://souffle-notifs.6fgbcr2vtp.workers.dev";
+const PAGES_URL = "https://9wsv9ngdft-cmd.github.io/souffle/";
+const onPages = /github\.io$/.test(location.hostname);
+const PUSH_KEY = "souffle-push";
+const pushCfg = () => { try { return JSON.parse(localStorage.getItem(PUSH_KEY)) || {}; } catch (e) { return {}; } };
+const setPushCfg = c => { try { localStorage.setItem(PUSH_KEY, JSON.stringify(c)); } catch (e) {} };
+const LVL_TXT = { auto: "Auto : Souffle s'adapte. Si ça craque, il en envoie plus ; si tout va bien, il se fait discret.", calm: "Discret : 3 rappels par jour (8 h, 13 h 30, 21 h).", normal: "Normal : 6 rappels par jour, tous avec un petit jeu.", more: "Soutien : jusqu'à 10 rappels par jour, pour les jours difficiles." };
+function pushApi(path, body) { return fetch(PUSH_API + path, { method: body ? "POST" : "GET", body: body ? JSON.stringify(body) : undefined, headers: body ? { "Content-Type": "text/plain" } : {} }).then(r => r.json()); }
+function pushSummary() {
+  const last = Math.max(0, ...[S.smokes, S.gums, S.vapes, S.ci, S.cravings].map(a => a.length ? a[a.length - 1].t : 0));
+  return { target: S.mode === "quit" ? 0 : target(dayIdx(Date.now())), rhythm: ciLevel(), last };
+}
+let pushT = null;
+function pushSoon() { const c = pushCfg(); if (!c.on || !S) return; clearTimeout(pushT); pushT = setTimeout(() => { pushApi("/state", { id: c.id, state: pushSummary() }).catch(() => {}); }, 4000); }
+const b64ToBytes = s => { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; return Uint8Array.from(atob(s), c => c.charCodeAt(0)); };
+async function enablePush() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window) || !window.Notification) throw new Error("unsupported");
+  if ((await Notification.requestPermission()) !== "granted") throw new Error("denied");
+  const reg = await navigator.serviceWorker.register("sw.js"); await navigator.serviceWorker.ready;
+  const { key } = await pushApi("/key");
+  let sub = await reg.pushManager.getSubscription();
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(key) });
+  const c = pushCfg(); c.id = c.id || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)); c.on = true; c.level = c.level || "auto";
+  const r = await pushApi("/register", { id: c.id, sub: sub.toJSON(), on: true, level: c.level, state: pushSummary() });
+  if (r.error) throw new Error(r.error);
+  setPushCfg(c);
+}
+async function disablePush() {
+  const c = pushCfg(); c.on = false; setPushCfg(c);
+  try { const reg = await navigator.serviceWorker.getRegistration(); const sub = reg && await reg.pushManager.getSubscription(); if (sub) await sub.unsubscribe(); } catch (e) {}
+  try { await pushApi("/unregister", { id: c.id }); } catch (e) {}
+}
+function renderPushBox() {
+  const msg = $("#pushMsg"), ctl = $("#pushCtl"), c = pushCfg();
+  const standalone = window.navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+  if (!onPages) { msg.innerHTML = `Pour recevoir des rappels, ouvre la version installable de Souffle : <b>${PAGES_URL.replace("https://", "")}</b>, puis ajoute-la à l'écran d'accueil (Partager, Sur l'écran d'accueil).`; ctl.style.display = "none"; return; }
+  if (!("PushManager" in window) || (!standalone && /iPhone|iPad/.test(navigator.userAgent))) { msg.textContent = "Ajoute d'abord Souffle à l'écran d'accueil (Partager, Sur l'écran d'accueil), puis ouvre-le depuis l'icône. Les rappels demandent iOS 16.4 ou plus récent."; ctl.style.display = "none"; return; }
+  ctl.style.display = "block";
+  msg.textContent = c.on ? "Les rappels sont activés. Chaque rappel est un petit jeu : quiz, anecdote, défi." : "Reçois des rappels ludiques sur ton téléphone, sans ouvrir l'appli.";
+  $("#pushToggle").textContent = c.on ? "Désactiver" : "Activer";
+  $("#pushTest").style.display = c.on ? "block" : "none";
+  seg($("#pushLevel"), c.level || "auto", v => { const k = pushCfg(); k.level = v; setPushCfg(k); $("#pushLvlTxt").textContent = LVL_TXT[v]; if (k.on) pushApi("/state", { id: k.id, level: v, state: pushSummary() }).catch(() => {}); });
+  $("#pushLvlTxt").textContent = LVL_TXT[c.level || "auto"];
+}
+$("#pushToggle").onclick = async () => {
+  const b = $("#pushToggle"); b.disabled = true;
+  try { if (pushCfg().on) { await disablePush(); toast("Rappels désactivés"); } else { await enablePush(); toast("Rappels activés 🎉"); } }
+  catch (e) { toast(e.message === "denied" ? "Notifications refusées : autorise-les dans les réglages du téléphone" : e.message === "full" ? "Le service est complet pour l'instant" : "Impossible d'activer les rappels pour l'instant"); }
+  b.disabled = false; renderPushBox();
+};
+$("#pushTest").onclick = async () => { try { const r = await pushApi("/test", { id: pushCfg().id }); toast(r.ok ? "Notification envoyée 📬" : "Test impossible, réessaie"); } catch (e) { toast("Test impossible, réessaie"); } };
+try { if (onPages && "serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.go === "quiz" && S) { go("sos"); $("#sosSeg").querySelector("[data-v=quiz]").click(); } }); } catch (e) {}
+
 /* ---------- badges ---------- */
 let badgeQueue = [];
 function checkBadges() {
@@ -1329,7 +1406,7 @@ function openSettings() {
   $("#e-vapeNic").value = sb.vapeNic; $("#e-vapePrice").value = sb.vapePrice || ""; $("#e-vapeDays").value = sb.vapeDays || 7;
   subFields();
   $("#setToQuit").style.display = q ? "none" : "block"; $("#setToReduce").style.display = q ? "block" : "none";
-  $("#resetConfirm").style.display = "none"; $("#setModal").classList.add("on");
+  $("#resetConfirm").style.display = "none"; renderPushBox(); $("#setModal").classList.add("on");
 }
 $("#openSettings").onclick = openSettings;
 $("#goalBtn").onclick = () => { openSettings(); setTimeout(() => $("#e-goal").focus(), 200); };

@@ -310,7 +310,21 @@ Principe : léger, jamais envahissant, optionnel.
 - Les rappels du téléphone ne s'adaptent pas seuls : c'est l'appli qui suggère, la personne décide.
 - Limite : une notification iPhone ne peut pas contenir de quiz ni d'animation : elle sert d'accroche, le jeu est dans l'appli.
 
-## 18. Inspirations : Kwit, Tabac Info Service, Stop-tabac, QuitNow!, Smoke Free
+## 18. Rappels sur le téléphone (notifications push) ✅
+Même méthode que Wouaf Balades : web push + petit programme Cloudflare.
+- Site : https://9wsv9ngdft-cmd.github.io/souffle/ (GitHub Pages), à ajouter à l'écran d'accueil (iOS 16.4 ou plus).
+- Programme : `worker/souffle-notifs.js` (Worker « souffle-notifs », KV `SOUFFLE`, cron toutes les 15 min, clés VAPID créées tout seul).
+- Réglages › « Rappels sur le téléphone » : activer/désactiver, bouton Tester, 4 intensités :
+  - **Auto** : s'adapte au « petit point » (si ça craque, plus de rappels ; si tout va bien, moins) ;
+  - **Discret** : 3 par jour (8 h, 13 h 30, 21 h) ;
+  - **Normal** : 6 par jour (+ 10 h, 17 h, 18 h 30) ;
+  - **Soutien** : jusqu'à 10 par jour (+ 11 h 45, 15 h 30, 19 h 45, 22 h 15).
+- Chaque rappel est un petit jeu (quiz, anecdote, défi d'eau, circuit 7 min). Le toucher ouvre l'appli, et le quiz pour les rappels « quiz » et « heure sensible ».
+- Pas de rappel dans les 20 min après une saisie, et jamais avant 8 h ni après 22 h 15.
+- **Données envoyées au programme** (seulement) : objectif du jour, rythme (« plus » / « moins »), heure de la dernière saisie. Aucun historique, aucun dosage.
+- Dans l'appli installée sur Claude, les rappels ne marchent pas : il faut la version GitHub Pages.
+
+## 19. Inspirations : Kwit, Tabac Info Service, Stop-tabac, QuitNow!, Smoke Free
 
 ### Kwit
 
@@ -344,7 +358,7 @@ Kwit est une app française d'arrêt du tabac, validée par l'OMS. La version gr
 
 ---
 
-## 19. Questions ouvertes
+## 20. Questions ouvertes
 
 - [x] Horaires des rappels : 8 h · 13 h 30 · 21 h
 - [x] Apple Watch : oui → raccourci vers *Respirer* dans le SOS
@@ -354,5 +368,5 @@ Kwit est une app française d'arrêt du tabac, validée par l'OMS. La version gr
 - [x] Idées retenues : mission du jour, préparer le jour J, symptômes de manque, plus de badges
 - [x] Non retenues pour l'instant : messages de proches, niveaux, humeur du soir, chat communautaire
 - [x] Substituts : patchs + gommes à mâcher
-- Rappels du téléphone : en pause pour l'instant (3 d'origine ; 3 supplémentaires ont été créés par erreur, à supprimer ou garder). Idée : 6 par jour au ton « petit point ».
+- [x] Rappels : push (section 18). Les 3 rappels de l'app Rappels (8 h, 13 h 30, 21 h) et 3 ajoutés par erreur (10 h, 17 h, 18 h 30) restent à supprimer une fois le push activé, pour éviter les doublons.
 - Vape avec nicotine : faut-il aussi suivre le nombre de flacons restants ?
